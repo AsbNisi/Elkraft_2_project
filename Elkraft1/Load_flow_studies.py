@@ -123,7 +123,7 @@ def main():
     ## Initialisation
 
 	####  Change name of input file (Excel) here  ####
-    filenam = 'System_data.xlsx'
+    filenam = 'Elkraft_2_project/Elkraft1/System_data.xlsx'
     branch_data_sheet = 'BranchData'
     bus_data_sheet = 'BusData'
 
