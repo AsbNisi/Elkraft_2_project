@@ -57,7 +57,35 @@ def Ybus(file, shape):
 
     return Y_bus
 
+def P_Calc(V, YBus, BusNum, delta, P):
+    P_Calc = np.zeros(BusNum, dtype=float)
+    for i in range (BusNum-1):
+        if P[i] == 0:
+            P_Calc[i] == 0
+        else:
+            for j in range (BusNum-1):
+                P_Calc[i] = P_Calc[i] + (V[i]*V[j]*(np.real(YBus)[i][j]*cmath.cos(delta[i]-delta[j])
+                            +np.imag(YBus)[i][j]*cmath.sin(delta[i]-delta[j]))) 
+    return P_Calc
 
+def Q_Calc(V, YBus, BusNum, delta, Q):
+    Q_Calc = np.zeros(BusNum, dtype=float)
+    for i in range (BusNum-1):
+        if Q[i] == 0:
+            Q_Calc[i] == 0
+        else:
+           for j in range (BusNum-1):
+                Q_Calc[i] += (V[i]*V[j]*(np.real(YBus)[i][j]*cmath.sin(delta[i]-delta[j])
+                                         -np.imag(YBus)[i][j]*cmath.cos(delta[i]-delta[j]))) 
+    return Q_Calc
+
+
+
+P_calc = (P_Calc(V, Ybus, 5, delta, P))
+Q_calc = (Q_Calc(V, Ybus, 5, delta, Q))
+
+print(P_calc)
+print(Q_calc)
 
 Ybus = Ybus('Part1/impedances.csv', 5)
 
