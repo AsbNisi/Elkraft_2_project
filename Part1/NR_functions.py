@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 import cmath
-
+from NR_network import Network, Buses, PQ, VD
 
 
 # Function to create the Y-bus matrix

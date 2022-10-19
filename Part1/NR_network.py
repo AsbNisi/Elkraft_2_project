@@ -99,8 +99,6 @@ class Network:
         return VD_vec, VD_jacobian
 
     
-# Definition of bus class
-
 class Buses:
     def __init__(self, P, Q, V, delta, bus_num, bus_type):
         self.P = P
@@ -110,16 +108,18 @@ class Buses:
         self.bus_num = bus_num 
         self.bus_type = bus_type
 
-
-
 class PQ:
     def __init__(self, Bus_type, Bus_num):
         self.Bus_type = Bus_type
         self.Bus_num = Bus_num
 
 
-
 class VD:
     def __init__(self, Bus_type, Bus_num):
         self.Bus_type = Bus_type
         self.Bus_num = Bus_num
+
+
+
+
+

@@ -5,14 +5,17 @@ import cmath
 
 
 
-from NR_functions import Ybus, read_buses, P_calc, Q_calc, get_PQ_calc, make_jacobian, delta_VD, updateVD, updateVD_vec, updatePQ_vec 
-from NR_classdef import Network, Buses, PQ, VD
+from NR_functions import Ybus, read_buses, P_Calc, Q_Calc, get_PQ_calc, make_jacobian, delta_VD, updateVD, updateVD_vec, updatePQ_vec 
+from NR_network import Network
+from NR_buses import Buses
+from NR_pq import PQ
+from NR_vd import VD
 
-bus_vec = read_buses('Busdata.csv')
+bus_vec = read_buses('Part1/Busdata.csv')
 
 power_network = Network(bus_vec)
 
-Ybus = Ybus('impedances.csv', 5)
+Ybus = Ybus('Part1/impedances.csv', 5)
 
 def NR(Ybus, power_network):
     V_init = power_network.get_V_calc()
@@ -20,10 +23,11 @@ def NR(Ybus, power_network):
     P_init = power_network.get_P_vec()
     Q_init = power_network.get_Q_vec()
     bus_num_init = power_network.get_bus_num_vec()
-    v = power_network.get_V_vec()
+    V = power_network.get_V_vec()
     delta = power_network.get_delta_vec()
     PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
     VD_vec, VD_jacobian = power_network.get_VD_jacobian()
+    print(PQ_jacobian)
 
     num_buses = len(bus_num_init)
 
@@ -33,7 +37,7 @@ def NR(Ybus, power_network):
     PQ_calc = get_PQ_calc(P_calc, Q_calc)  
 
 
-    j = make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V_calc, delta_calc)
+    j = make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V_init, delta_init)
     j_inv = np.linalg.inv(j)
 
 
