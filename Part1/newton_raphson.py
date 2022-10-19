@@ -14,6 +14,7 @@ power_network = Network(bus_vec)
 
 Ybus = Ybus('Part1/impedances.csv', 5)
 
+
 def NR(Ybus, power_network):
     V_init = power_network.get_V_calc()
     delta_init = power_network.get_delta_calc()
@@ -29,8 +30,8 @@ def NR(Ybus, power_network):
 
     P_calc = P_Calc(V_init, Ybus, bus_num_init, delta_init, P_init)
     Q_calc = Q_Calc(V_init, Ybus, bus_num_init, delta_init, Q_init)
-
     PQ_calc = get_PQ_calc(P_calc, Q_calc)  
+
 
     j = make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V_init, delta_init, Ybus)
     j_inv = np.linalg.inv(j)
@@ -42,6 +43,8 @@ def NR(Ybus, power_network):
     delta_updated, V_updated = updateVD_vec(VD_vec_current,delta,V)
 
     PQ_vec_updated = updatePQ_vec(PQ_vec, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init)
+
+
 
     return PQ_vec_updated 
         
