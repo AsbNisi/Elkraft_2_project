@@ -112,6 +112,8 @@ class PQ:
     def __init__(self, Bus_type, Bus_num):
         self.Bus_type = Bus_type
         self.Bus_num = Bus_num
+    def get_bus_num(self):
+        return self.Bus_num
 
 
 class VD:

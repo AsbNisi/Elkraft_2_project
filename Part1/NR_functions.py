@@ -9,7 +9,6 @@ from NR_network import Network, Buses, PQ, VD
 # shape needs to be specified per now. Fix this?
 def Ybus(file, shape):
     df_impedances = pd.read_csv(file, sep=";")
-    print(df_impedances.head())
     Z_values = np.zeros((shape,shape), dtype=complex)
     Y_bus = np.zeros((shape,shape), dtype=complex)
 
@@ -97,7 +96,7 @@ def get_PQ_calc(P_calculated, Q_calculated):
 
 
 
-def make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta):
+def make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, Ybus):
     j = np.zeros((7,7), dtype=complex)
     
     for x in range(len(PQ_vec)):
@@ -107,7 +106,7 @@ def make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta):
                     for i in range(num_buses):
                         if (i==PQ_jacobian[x].Bus_num):
                             j[x,y] += 0
-                        else:
+                        else:                            
                             j[x,y] += V[PQ_jacobian[x].Bus_num]*(-np.real(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[i])+np.imag(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[i]))      
                 if (PQ_jacobian[x].Bus_type == 'P' and VD_jacobian[y].Bus_type == 'V'):
                     for i in range(num_buses):
@@ -175,7 +174,5 @@ def updatePQ_vec(PQ_vec, V_current, delta_current, Ybus, bus_num_init, P_init, Q
     PQ_vec_updated = PQ_vec.copy() #Hvorfor gjør vi dette?
     P_calc_updated = P_Calc(V_current, Ybus, bus_num_init, delta_current, P_init)
     Q_calc_updated = Q_Calc(V_current, Ybus, bus_num_init, delta_current, Q_init)
-    print(P_calc_updated)
-    print(Q_calc_updated)
     PQ_vec_updated = get_PQ_calc(P_calc_updated, Q_calc_updated) 
     return PQ_vec_updated
