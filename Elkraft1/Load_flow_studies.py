@@ -115,7 +115,7 @@ def save_to_excel(BusInfo, S, loss, YbusG, YbusB, total, total_loss):
         for j in range(0, len(YbusB)):
             sheet4.cell(row=i + 1, column=j + 1).value = YbusB[i, j]
 
-    wb.save('Elkraft1/LoadFlow_results.xlsx')
+    wb.save('Elkraft1/Elkraft1\LoadFlow_results.xlsx')
     return None
 
 def main():
