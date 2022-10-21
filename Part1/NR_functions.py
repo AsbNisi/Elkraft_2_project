@@ -1,3 +1,4 @@
+from lib2to3.pgen2.pgen import DFAState
 import numpy as np
 import pandas as pd
 import os
@@ -107,20 +108,28 @@ def make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, Ybus):
                         if (i==PQ_jacobian[x].Bus_num):
                             j[x,y] += 0
                         else:                            
-                            j[x,y] += V[PQ_jacobian[x].Bus_num]*(-np.real(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[i])+np.imag(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[i]))      
+                            j[x,y] += V[PQ_jacobian[x].Bus_num]*V[i]*(-np.real(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[i])+np.imag(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[i]))      
+                
                 if (PQ_jacobian[x].Bus_type == 'P' and VD_jacobian[y].Bus_type == 'V'):
                     for i in range(num_buses):
                         if (i==PQ_jacobian[x].Bus_num):
-                            j[x,y] += 2*V[PQ_jacobian[x].Bus_num]*np.real(Ybus[PQ_jacobian[x].Bus_num,i])
+                            j[x,y] += 2*V[i]*np.real(Ybus[PQ_jacobian[x].Bus_num,i])
                         else:
-                            j[x,y] += V[PQ_jacobian[x].Bus_num]*(np.real(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[i])+np.imag(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[i]))      
+                            j[x,y] += V[i]*(np.real(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[i])+np.imag(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[i]))      
 
                 if (PQ_jacobian[x].Bus_type == 'Q' and VD_jacobian[y].Bus_type == 'D'):
-                    j[x,y] += V[PQ_jacobian[x].Bus_num]*V[y]*(np.real(Ybus[PQ_jacobian[x].Bus_num,i]*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[i]))+np.imag(Ybus[PQ_jacobian[x].Bus_num,i]*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[i])))
+                    for i in range(num_buses):
+                        if (i==PQ_jacobian[x].Bus_num):
+                            j[x,y] += 0
+                        else: 
+                            j[x,y] += V[PQ_jacobian[x].Bus_num]*V[i]*(np.real(Ybus[PQ_jacobian[x].Bus_num,i]*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[i]))+np.imag(Ybus[PQ_jacobian[x].Bus_num,i]*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[i])))
 
                 if (PQ_jacobian[x].Bus_type == 'Q' and VD_jacobian[y].Bus_type == 'V'):
-                    j[x,y] += 2*V[PQ_jacobian[x].Bus_num]*(np.real(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[i])-np.imag(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[i]))
-           
+                    for i in range(num_buses):
+                        if (i==PQ_jacobian[x].Bus_num):
+                            j[x,y] += -2*V[i]*np.imag(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[i])
+                        else: 
+                            j[x,y] += V[i]*(np.real(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[i])-np.imag(Ybus[PQ_jacobian[x].Bus_num,i])*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[i]))
             else:
                 if (PQ_jacobian[x].Bus_type == 'P' and VD_jacobian[y].Bus_type == 'D'):
                     j[x,y] += V[PQ_jacobian[x].Bus_num]*V[VD_jacobian[y].Bus_num]*(np.real(Ybus[PQ_jacobian[x].Bus_num,VD_jacobian[y].Bus_num])*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[VD_jacobian[y].Bus_num])-np.imag(Ybus[PQ_jacobian[x].Bus_num,VD_jacobian[y].Bus_num])*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[VD_jacobian[y].Bus_num]))
@@ -132,7 +141,7 @@ def make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, Ybus):
                     j[x,y] += V[PQ_jacobian[x].Bus_num]*np.real(Ybus[PQ_jacobian[x].Bus_num,VD_jacobian[y].Bus_num]*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[VD_jacobian[y].Bus_num])-np.imag(Ybus[PQ_jacobian[x].Bus_num,VD_jacobian[y].Bus_num]*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[VD_jacobian[y].Bus_num])))
                 
                 if (PQ_jacobian[x].Bus_type == 'Q' and VD_jacobian[y].Bus_type == 'D'):
-                    j[x,y] += V[PQ_jacobian[x].Bus_num]*V[VD_jacobian[y].Bus_num]*(np.real(Ybus[PQ_jacobian[x].Bus_num,VD_jacobian[y].Bus_num]*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[VD_jacobian[y].Bus_num]))-np.imag(Ybus[PQ_jacobian[x].Bus_num,VD_jacobian[y].Bus_num]*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[VD_jacobian[y].Bus_num])))
+                    j[x,y] += V[PQ_jacobian[x].Bus_num]*V[VD_jacobian[y].Bus_num]*(-np.real(Ybus[PQ_jacobian[x].Bus_num,VD_jacobian[y].Bus_num]*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[VD_jacobian[y].Bus_num]))-np.imag(Ybus[PQ_jacobian[x].Bus_num,VD_jacobian[y].Bus_num]*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[VD_jacobian[y].Bus_num])))
     return j
 
 
@@ -153,14 +162,12 @@ def updateVD(VD_vec, delta_vd):
 
 
 def updateVD_vec(VD_vec_current,delta_current,V_current):
-    print(VD_vec_current)
-    delta_updated = delta_current
-    V_updated = V_current
+    delta_updated = delta_current.copy()
+    V_updated = V_current.copy()
     c = 0
     for x in range(len(delta_updated)):
         if (np.isnan(delta_updated[x])):
             delta_updated[x] = VD_vec_current[c]
-            print(VD_vec_current[c])
             c += 1
     for x in range(len(V_updated)):
         if (np.isnan(V_updated[x])):
@@ -204,6 +211,11 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, del
 
     #8
     delta_updated, V_updated = updateVD_vec(VD_vec_current,delta_updated,V_updated)
+
+    #print("New delta")
+    #print(delta_updated)
+    #print("New V")
+    #print(V_updated)
 
     #9
     PQ_vec_updated = updatePQ_vec(PQ_vec, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init)
