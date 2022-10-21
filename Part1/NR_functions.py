@@ -153,14 +153,14 @@ def updateVD(VD_vec, delta_vd):
 
 
 def updateVD_vec(VD_vec_current,delta_current,V_current):
-    delta_updated = delta_current.copy()
-    delta_updated = np.array(delta_updated, complex)
-    V_updated = V_current.copy()
-    V_updated = np.array(V_updated, complex)
+    print(VD_vec_current)
+    delta_updated = delta_current
+    V_updated = V_current
     c = 0
     for x in range(len(delta_updated)):
         if (np.isnan(delta_updated[x])):
             delta_updated[x] = VD_vec_current[c]
+            print(VD_vec_current[c])
             c += 1
     for x in range(len(V_updated)):
         if (np.isnan(V_updated[x])):
@@ -178,27 +178,35 @@ def updatePQ_vec(PQ_vec, V_current, delta_current, Ybus, bus_num_init, P_init, Q
     return PQ_vec_updated
 
 
-def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec_current):
-    P_calc = P_Calc(V_init, Ybus, bus_num_init, delta_init, P_init)
-    Q_calc = Q_Calc(V_init, Ybus, bus_num_init, delta_init, Q_init)
-    PQ_calc = get_PQ_calc(P_calc, Q_calc) 
+def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current):
+    #1
 
+    delta_updated, V_updated = updateVD_vec(VD_vec_current, delta, V)
+    
+    #2
+    P_calc = P_Calc(V_updated, Ybus, bus_num_init, delta_updated, P_init)
+    Q_calc = Q_Calc(V_updated, Ybus, bus_num_init, delta_updated, Q_init)
+    
+    #3
+    PQ_calc_updated = get_PQ_calc(P_calc, Q_calc) 
 
-    j = make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V_init, delta_init, Ybus)
+    #4
+    j = make_jacobian(VD_jacobian, PQ_jacobian, PQ_calc_updated, num_buses, V_updated, delta_updated, Ybus)
+    
+    #5
     j_inv = np.linalg.inv(j)
 
-    delta_vd = delta_VD(PQ_vec, PQ_calc, j_inv)
-
+    #6
+    delta_vd = delta_VD(PQ_vec, PQ_calc_updated, j_inv)
+    
+    #7
     VD_vec_current = updateVD(VD_vec_current, delta_vd)
 
-    delta_updated, V_updated = updateVD_vec(VD_vec_current,delta_init,V_init)
+    #8
+    delta_updated, V_updated = updateVD_vec(VD_vec_current,delta_updated,V_updated)
 
+    #9
     PQ_vec_updated = updatePQ_vec(PQ_vec, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init)
 
-    return PQ_vec_updated, delta_updated, V_updated, VD_vec_current
+    return PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc
 
-
-
-PQ_vec_updated, delta_updated, V_updated = iterate_NR()
-
-PQ_vec = PQ_vec_updated
