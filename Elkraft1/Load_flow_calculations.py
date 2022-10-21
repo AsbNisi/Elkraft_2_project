@@ -425,3 +425,7 @@ def Load_flow(filenam, branch_data_sheet, bus_data_sheet):
         total_loss[1] = total_loss[1] + loss[k, 3]
 
     return BusInfo, total, S, loss, total_loss, Ybus, YbusG, YbusB
+
+    """
+    Test av ny branch
+    """
