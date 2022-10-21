@@ -29,43 +29,15 @@ def NR(Ybus, power_network):
     num_buses = len(bus_num_init)
 
 
-    print(PQ_vec)
-    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec)
+    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec)
     print(PQ_vec_updated)
-    """
-    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
+    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
     print(PQ_vec_updated)
-    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
-    """
+    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
+    print(PQ_vec_updated)
+    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
     
 
-    
-
-    """  
-    P_calc = P_Calc(V_init, Ybus, bus_num_init, delta_init, P_init)
-    Q_calc = Q_Calc(V_init, Ybus, bus_num_init, delta_init, Q_init)
-    PQ_calc = get_PQ_calc(P_calc, Q_calc)  
-
-
-    j = make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V_init, delta_init, Ybus)
-    j_inv = np.linalg.inv(j)
-
-
-    delta_vd = delta_VD(PQ_vec, PQ_calc, j_inv)
-
-    VD_vec_current = updateVD(VD_vec, delta_vd)
-
-    delta_updated, V_updated = updateVD_vec(VD_vec_current,delta,V)
-
-    PQ_vec_updated = updatePQ_vec(PQ_vec, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init)
-
-    print(PQ_vec_updated)
-
-    PQ_vec_updated, delta_updated, V_updated, VD_vec_current = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec_updated, num_buses, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
-    print(PQ_vec_updated)
-    PQ_vec_updated, delta_updated, V_updated, VD_vec_current = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec_updated, num_buses, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init, VD_vec_current)
-    """
-    
     return PQ_vec_updated 
         
 

@@ -178,14 +178,14 @@ def updateVD_vec(VD_vec_current,delta_current,V_current):
 
 
 def updatePQ_vec(PQ_vec, V_current, delta_current, Ybus, bus_num_init, P_init, Q_init):
-    PQ_vec_updated = PQ_vec.copy() #Hvorfor gjør vi dette?
+    #PQ_vec_updated = PQ_vec.copy() #Hvorfor gjør vi dette?
     P_calc_updated = P_Calc(V_current, Ybus, bus_num_init, delta_current, P_init)
     Q_calc_updated = Q_Calc(V_current, Ybus, bus_num_init, delta_current, Q_init)
-    PQ_vec_updated = get_PQ_calc(P_calc_updated, Q_calc_updated) 
-    return PQ_vec_updated
+    return get_PQ_calc(P_calc_updated, Q_calc_updated) 
+    
 
 
-def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current):
+def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current):
     #1
 
     delta_updated, V_updated = updateVD_vec(VD_vec_current, delta, V)
@@ -202,7 +202,8 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, del
     
     #5
     j_inv = np.linalg.inv(j)
-    print(j)
+
+
 
     #6
     delta_vd = delta_VD(PQ_vec, PQ_calc_updated, j_inv)
