@@ -28,13 +28,18 @@ def NR(Ybus, power_network):
     
     num_buses = len(bus_num_init)
 
-    print(VD_vec)
+
+    print(PQ_vec)
     PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec)
     print(PQ_vec_updated)
+    """
     PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
     print(PQ_vec_updated)
     PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
+    """
+    
 
+    
 
     """  
     P_calc = P_Calc(V_init, Ybus, bus_num_init, delta_init, P_init)

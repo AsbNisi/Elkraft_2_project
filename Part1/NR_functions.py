@@ -202,6 +202,7 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, del
     
     #5
     j_inv = np.linalg.inv(j)
+    print(j)
 
     #6
     delta_vd = delta_VD(PQ_vec, PQ_calc_updated, j_inv)
