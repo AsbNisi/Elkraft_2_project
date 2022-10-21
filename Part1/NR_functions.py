@@ -184,6 +184,43 @@ def updatePQ_vec(PQ_vec, V_current, delta_current, Ybus, bus_num_init, P_init, Q
     return get_PQ_calc(P_calc_updated, Q_calc_updated) 
     
 
+#Function to caluculate updated P values
+def P_Updated(V, YBus, BusNum, delta):
+    P_Updated = np.zeros(len(BusNum), dtype=complex)
+    for i in range (len(BusNum)):
+        for j in range (len(BusNum)):
+            P_Updated[i] += (V[i]*V[j]*(np.real(YBus)[i][j]*cmath.cos(delta[i]-delta[j])
+                        +np.imag(YBus)[i][j]*cmath.sin(delta[i]-delta[j]))) 
+    return P_Updated
+
+#Function to caluculate updated Q values
+def Q_Updated(V, YBus, BusNum, delta):
+    Q_updated = np.zeros(len(BusNum), dtype=complex)
+    for i in range (len(BusNum)):
+        for j in range (len(BusNum)):
+            Q_updated[i] += (V[i]*V[j]*(np.real(YBus)[i][j]*cmath.sin(delta[i]-delta[j])
+                         -np.imag(YBus)[i][j]*cmath.cos(delta[i]-delta[j]))) 
+    return Q_updated
+
+
+def Q_max_violation(Q_Updated, Q_max, bus_num, V, bus_type):
+    Q_Updated = [0.75, -2.37, 1.07, 2.06, -0.43]
+    for i in range (len(Q_max)):
+        if Q_max[i] == '':
+            continue
+        if Q_max[i] < Q_Updated[i]:
+            print('Q_max is violated for bus ', bus_num[i+1], 'and needs to be type switched.')
+            bus_type[i] = 2
+            Q_Updated[i] = Q_max[i]
+            V[i] = np.nan
+            print(V)
+            print(bus_type)  
+        else:
+            print('Bus', bus_num[i+1], 'is within its boundaries.')
+            continue
+    return Q_Updated
+
+
 
 def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current):
     #1
@@ -203,8 +240,6 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, d
     #5
     j_inv = np.linalg.inv(j)
 
-
-
     #6
     delta_vd = delta_VD(PQ_vec, PQ_calc_updated, j_inv)
     
@@ -213,11 +248,6 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, d
 
     #8
     delta_updated, V_updated = updateVD_vec(VD_vec_current,delta_updated,V_updated)
-
-    #print("New delta")
-    #print(delta_updated)
-    #print("New V")
-    #print(V_updated)
 
     #9
     PQ_vec_updated = updatePQ_vec(PQ_vec, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init)
