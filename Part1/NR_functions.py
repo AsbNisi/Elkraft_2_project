@@ -203,22 +203,26 @@ def Q_Updated(V, YBus, BusNum, delta):
     return Q_updated
 
 
-def Q_max_violation(Q_Updated, Q_max, bus_num, V, bus_type):
-    Q_Updated = [0.75, -2.37, 1.07, 2.06, -0.43]
+def Q_max_violation(Q_updated, Q_max, bus_num, V, power_network):
+    V_updated = V.copy()
+    #Q_updated = [0.75, -2.37, 1.07, 2.06, -0.43]
     for i in range (len(Q_max)):
         if Q_max[i] == '':
             continue
-        if Q_max[i] < Q_Updated[i]:
-            print('Q_max is violated for bus ', bus_num[i+1], 'and needs to be type switched.')
-            bus_type[i] = 2
-            Q_Updated[i] = Q_max[i]
-            V[i] = np.nan
-            print(V)
-            print(bus_type)  
+        if Q_max[i] < Q_updated[i]:
+            #print('Q_max is violated for bus ', bus_num[i+1], 'and needs to be type switched.')
+            power_network[i].bus_type = 2
+            #powebus_type[i] = 2
+            Q_updated[i] = Q_max[i]
+            V_updated[i] = np.nan
+            power_network[i].Q = Q_max[i]
+            power_network[i].V = np.nan
+            #print(V)
+            #print(bus_type)  
         else:
-            print('Bus', bus_num[i+1], 'is within its boundaries.')
+            #print('Bus', bus_num[i+1], 'is within its boundaries.')
             continue
-    return Q_Updated
+    return Q_updated, V_updated
 
 
 
@@ -252,5 +256,5 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, d
     #9
     PQ_vec_updated = updatePQ_vec(PQ_vec, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init)
 
-    return PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc
+    return PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd
 

@@ -5,17 +5,20 @@ import cmath
 
 
 
-from NR_functions import Ybus, read_buses, P_Calc, Q_Calc, get_PQ_calc, make_jacobian, delta_VD, updateVD, updateVD_vec, updatePQ_vec, iterate_NR
+from NR_functions import Ybus, read_buses, P_Calc, Q_Calc, get_PQ_calc, make_jacobian, delta_VD, updateVD, updateVD_vec, updatePQ_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation
 from NR_network import Network, Buses, PQ, VD
 
 bus_vec = read_buses('Part1/Busdata.csv')
 
 power_network = Network(bus_vec)
 
+#print(power_network.get_bus(2))
+
 Ybus = Ybus('Part1/impedances.csv', 5)
+convergence = 0.00001
+Q_max = [0.5, 5, 1.5,5,5]
 
-
-def NR(Ybus, power_network):
+def NR(Ybus, power_network, convergence, Q_max):
     V_init = power_network.get_V_calc()
     delta_init = power_network.get_delta_calc()
     P_init = power_network.get_P_vec()
@@ -27,23 +30,48 @@ def NR(Ybus, power_network):
     VD_vec, VD_jacobian = power_network.get_VD_jacobian()
     
     num_buses = len(bus_num_init)
+    
+    
+    delta_vd = [1,1,1,1,1,1,1]
+    PQ_vec_updated = PQ_vec.copy()
+    i= 0
 
+    while(abs(max(np.real(delta_vd))) > convergence):
+        if (i==0):
+            PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec)
+            P_updated = P_Updated(V_updated, Ybus, bus_num_init, delta_updated)
+            Q_updated = Q_Updated(V_updated, Ybus, bus_num_init, delta_updated)
+            i += 1
+            Q_updated, V_updated = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
+            V = power_network.get_V_vec()
+            Q_calc = power_network.get_Q_vec()
 
-    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec)
-    print(PQ_vec_updated)
-    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
-    print(PQ_vec_updated)
-    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
-    print(PQ_vec_updated)
-    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
+        else:
+            PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
+            P_updated = P_Updated(V_updated, Ybus, bus_num_init, delta_updated)
+            Q_updated = Q_Updated(V_updated, Ybus, bus_num_init, delta_updated)
+            Q_updated, V_updated = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
+
+    """
+    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec)
+    print(delta_vd)
+    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
+    print(delta_vd)
+    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
+    print(delta_vd)
+    PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd= iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
+    print(delta_vd)
+    """
     
 
-    return PQ_vec_updated 
-        
+    return PQ_vec_updated, P_updated, Q_updated 
+      
 
 
-a = NR(Ybus, power_network)
+a, b, c = NR(Ybus, power_network, convergence, Q_max)
 
 print(a)
+print(b)
+print(c)
 
 

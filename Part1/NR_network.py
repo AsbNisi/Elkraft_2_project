@@ -9,6 +9,10 @@ import cmath
 class Network:
     def __init__(self, buses):
         self.buses = buses
+
+    def get_buses(self):
+        return self.buses()
+
     
     def get_V_vec(self):
         V_vec = []
