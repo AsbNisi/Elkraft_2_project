@@ -1,9 +1,11 @@
 from lib2to3.pgen2.pgen import DFAState
+from logging import error
 import numpy as np
 import pandas as pd
 import os
 import cmath
 from NR_network import Network, Buses, PQ, VD
+#from symbol import power
 
 
 # Function to create the Y-bus matrix
@@ -169,10 +171,13 @@ def updateVD_vec(VD_vec_current,delta_current,V_current):
         if (np.isnan(delta_updated[x])):
             delta_updated[x] = VD_vec_current[c]
             c += 1
+
     for x in range(len(V_updated)):
         if (np.isnan(V_updated[x])):
             V_updated[x] = VD_vec_current[c]
-            c += 1
+            c += 1 
+    print(delta_updated)   
+    print(V_updated)    
     return delta_updated, V_updated
 
 
@@ -205,24 +210,28 @@ def Q_Updated(V, YBus, BusNum, delta):
 
 def Q_max_violation(Q_updated, Q_max, bus_num, V, power_network):
     V_updated = V.copy()
+    Buses = power_network.buses
     #Q_updated = [0.75, -2.37, 1.07, 2.06, -0.43]
     for i in range (len(Q_max)):
         if Q_max[i] == '':
             continue
         if Q_max[i] < Q_updated[i]:
             #print('Q_max is violated for bus ', bus_num[i+1], 'and needs to be type switched.')
-            power_network[i].bus_type = 2
+            Buses[i].bus_type = 2
             #powebus_type[i] = 2
             Q_updated[i] = Q_max[i]
             V_updated[i] = np.nan
-            power_network[i].Q = Q_max[i]
-            power_network[i].V = np.nan
+            Buses[i].Q = Q_max[i]
+            Buses[i].V = np.nan
             #print(V)
             #print(bus_type)  
         else:
             #print('Bus', bus_num[i+1], 'is within its boundaries.')
             continue
-    return Q_updated, V_updated
+        print(power_network.get_Q_vec())
+        print(power_network.get_V_vec())
+        power_network = Network(Buses)
+    return Q_updated, V_updated, power_network
 
 
 

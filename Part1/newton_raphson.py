@@ -35,22 +35,33 @@ def NR(Ybus, power_network, convergence, Q_max):
     delta_vd = [1,1,1,1,1,1,1]
     PQ_vec_updated = PQ_vec.copy()
     i= 0
-
+    #print("V")
+    #print(V)
     while(abs(max(np.real(delta_vd))) > convergence):
         if (i==0):
             PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec)
             P_updated = P_Updated(V_updated, Ybus, bus_num_init, delta_updated)
             Q_updated = Q_Updated(V_updated, Ybus, bus_num_init, delta_updated)
             i += 1
-            Q_updated, V_updated = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
+            Q_updated, V_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
             V = power_network.get_V_vec()
             Q_calc = power_network.get_Q_vec()
+            VD_vec, VD_jacobian = power_network.get_VD_jacobian()
+            PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
+            #print(VD_vec,PQ_vec)
+            #print(V_updated)
+            #print(Q_calc)
+
 
         else:
             PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current)
             P_updated = P_Updated(V_updated, Ybus, bus_num_init, delta_updated)
             Q_updated = Q_Updated(V_updated, Ybus, bus_num_init, delta_updated)
-            Q_updated, V_updated = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
+            Q_updated, V_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
+            V = power_network.get_V_vec()
+            Q_calc = power_network.get_Q_vec()
+            VD_vec, VD_jacobian = power_network.get_VD_jacobian()
+            PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
 
     """
     PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec)
