@@ -39,6 +39,7 @@ def NR(Ybus, power_network, convergence, Q_max):
     #print(V)
     while(abs(max(np.real(delta_vd))) > convergence):
         if (i==0):
+            print("Iteration", i+1, ": \n")
             bus_type = power_network.get_bus_type_vec()
             PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec, power_network, bus_type_init, bus_type)
             i += 1
@@ -72,6 +73,7 @@ def NR(Ybus, power_network, convergence, Q_max):
         elif (i==5):
             break
         else:
+            print("Iteration", i+1, ": \n")
             PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type_init, bus_type)
             P_updated = P_Updated(V_updated, Ybus, bus_num_init, delta_updated)
             Q_updated = Q_Updated(V_updated, Ybus, bus_num_init, delta_updated)

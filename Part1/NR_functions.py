@@ -31,6 +31,7 @@ def printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init,
     for k, v in d.items():
         BusType, voltage, angle, active, reactive = v
         print("{:<8} {:<9} {:<9} {:<9} {:<14} {:<16}".format(k,BusType, round(voltage,4), round(angle,4), round(active,4), round(reactive,4)))
+    print('\n')
     return 
 
 
