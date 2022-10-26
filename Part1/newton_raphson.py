@@ -42,22 +42,24 @@ def NR(Ybus, power_network, convergence, Q_max):
         if (i==0):
             PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec, power_network, bus_type_init)
             i += 1
-            print("V_updated")
-            print(V_updated)
-            print("delta_updated")
-            print(delta_updated)
+            #print("V_updated")
+            #print(V_updated)
+            #print("delta_updated")
+           # print(delta_updated)
             P_updated = P_Updated(V_updated, Ybus, bus_num_init, delta_updated)
             Q_updated = Q_Updated(V_updated, Ybus, bus_num_init, delta_updated)
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_init)
             
             Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
-            power_network = PQ_to_PV(bus_type_init, Q_updated, Q_max, V_updated, power_network)
+            #power_network = PQ_to_PV(bus_type_init, Q_updated, Q_max, V_updated, power_network)
             V = power_network.get_V_vec()
             Q_calc = power_network.get_Q_vec()
             VD_vec, VD_jacobian = power_network.get_VD_jacobian()
             PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
+
             print("V")
-            print(V)
+            #print(V)
+            print(VD_vec)
             
 
             #print(V_updated)
@@ -72,15 +74,17 @@ def NR(Ybus, power_network, convergence, Q_max):
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_init)
             
             Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
-            power_network = PQ_to_PV(bus_type_init, Q_updated, Q_max, V_updated, power_network)
-            print("V_updated")
-            print(V_updated)
+            #power_network = PQ_to_PV(bus_type_init, Q_updated, Q_max, V_updated, power_network)
+            #print("V_updated")
+            #print(V_updated)
             V = power_network.get_V_vec()
             Q_calc = power_network.get_Q_vec()
             VD_vec_current, VD_jacobian = power_network.get_VD_jacobian()
             PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
-            print("V")
-            print(V)
+            #print("V")
+            #print(V)
+            print("VD_vec_current")
+            print(VD_vec_current)
             i += 1
             
    

@@ -186,21 +186,23 @@ def delta_VD(PQ_vec, PQ_calc, j_inv):
 
 def updateVD(VD_vec, delta_vd, bus_type_init, power_network):
     VD_vec_updated = VD_vec.copy()
+    bus_type = power_network.get_bus_type_vec()
+    buses = power_network.buses
     c = 0
-    for x in range(len(power_network.get_bus_num_vec())):
-        if(np.isnan(power_network.get_buses()[x].delta)):
+    for x in range(len(bus_type)):
+        if(np.isnan(buses[x].delta)):
             c += 1
-    for x in range(len(power_network.get_bus_num_vec())):
-        if(np.isnan(power_network.get_buses()[x].V)):
+    for x in range(len(bus_type)):
+        if(np.isnan(buses[x].V)):
             c += 1
-        if (bus_type_init[x] != power_network.get_bus_type_vec()[x]):
-            VD_vec[c].insert(c-1, 1)
+        if (bus_type_init[x] != bus_type[x]):
+            VD_vec.insert(c-1, 1)
     VD_vec_updated = np.array(VD_vec) + np.array(delta_vd)
     return VD_vec_updated
 
 
 
-def updateVD_vec(VD_vec_current,delta,V, bus_type_init, power_network):
+def updateVD_vec(VD_vec_current,delta,V, bus_type_init, bus_type):
     delta_current = delta.copy()
     V_current = V.copy()
     c = 0
@@ -210,7 +212,7 @@ def updateVD_vec(VD_vec_current,delta,V, bus_type_init, power_network):
             c += 1
 
     for x in range(len(V_current)):
-        if (bus_type_init[x] != power_network.get_bus_type_vec()[x]):
+        if (bus_type_init[x] != bus_type[x]):
             V_current[x] = 1
         elif (np.isnan(V_current[x])):
             V_current[x] = VD_vec_current[c]
@@ -291,11 +293,11 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, d
     print(delta)
     print("V")
     print(V)
-    delta_updated, V_updated = updateVD_vec(VD_vec_current, delta, V, bus_type_init, power_network)
-    print("delta_U")
-    print(delta_updated)
-    print("V_U")
-    print(V_updated)
+    delta_updated, V_updated = updateVD_vec(VD_vec_current, delta, V, bus_type_init, power_network.get_bus_type_vec())
+    #print("delta_U")
+    #print(delta_updated)
+    #print("V_U")
+    #print(V_updated)
     #2
     P_calc = P_Calc(V_updated, Ybus, bus_num_init, delta_updated, P_init)
     Q_calc = Q_Calc(V_updated, Ybus, bus_num_init, delta_updated, Q_init)
@@ -315,13 +317,15 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, d
     #7
     print("Vd_vec")
     print(VD_vec_current)
+    print("delta_vd")
+    print(delta_vd)
     VD_vec_current = updateVD(VD_vec_current, delta_vd, bus_type_init, power_network)
     
 
     #8
     delta_updated, V_updated = updateVD_vec(VD_vec_current,delta,V, bus_type_init, power_network)
-    print(delta_updated)
-    print(V_updated)
+    #print(delta_updated)
+    #print(V_updated)
 
     #9
     PQ_vec_updated = updatePQ_vec(PQ_vec, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init)
