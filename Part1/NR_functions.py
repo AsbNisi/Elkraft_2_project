@@ -5,7 +5,33 @@ import pandas as pd
 import os
 import cmath
 from NR_network import Network, Buses, PQ, VD
+from pandas import *
+
 #from symbol import power
+def printing_Y_bus(Ybus):
+    df = DataFrame(Ybus)
+    df.index = np.arange(1, len(df)+1)
+    df.columns = np.arange(1, len(df)+1)
+    print('Ybus: \n', df, '\n')
+    return 
+
+def printing_jacobian(j):
+    df1 = DataFrame(np.real(j))
+    df1.index = np.arange(1, len(df1)+1)
+    df1.columns = np.arange(1, len(df1)+1)
+    print('Jacobian: \n', df1, '\n')
+    return 
+
+def printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type):
+    print ('Updated vales for iteration number #. Values in pu and rad.\n')
+    d = {}
+    for i in range (len(bus_num_init)):
+        d[bus_num_init[i]+1] = bus_type[i], np.real(V_updated[i]), np.real(delta_updated[i]), np.real(P_updated[i]), np.real(Q_updated[i])
+    print ("{:<7} {:<10} {:<9} {:<9} {:<14} {:<10}".format('Bus #',' Bus Type','Voltage','Angle','Active Power','Reactive Power'))    
+    for k, v in d.items():
+        BusType, voltage, angle, active, reactive = v
+        print("{:<8} {:<9} {:<9} {:<9} {:<14} {:<16}".format(k,BusType, round(voltage,4), round(angle,4), round(active,4), round(reactive,4)))
+    return 
 
 
 # Function to create the Y-bus matrix
@@ -37,6 +63,7 @@ def Ybus(file, shape):
             else:
                 if(i != j):
                     Y_bus[i][j] = Z_values[i][j]
+    printing_Y_bus(Y_bus)
     return Y_bus
 
 
@@ -100,7 +127,7 @@ def get_PQ_calc(P_calculated, Q_calculated):
 
 
 def make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, Ybus):
-    j = np.zeros((7,7), dtype=complex)
+    j = np.zeros((len(PQ_vec),len(PQ_vec)), dtype=complex)
     
     for x in range(len(PQ_vec)):
         for y in range(len(PQ_vec)):
@@ -144,6 +171,7 @@ def make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, Ybus):
                 
                 if (PQ_jacobian[x].Bus_type == 'Q' and VD_jacobian[y].Bus_type == 'D'):
                     j[x,y] += V[PQ_jacobian[x].Bus_num]*V[VD_jacobian[y].Bus_num]*(-np.real(Ybus[PQ_jacobian[x].Bus_num,VD_jacobian[y].Bus_num]*cmath.cos(delta[PQ_jacobian[x].Bus_num]-delta[VD_jacobian[y].Bus_num]))-np.imag(Ybus[PQ_jacobian[x].Bus_num,VD_jacobian[y].Bus_num]*cmath.sin(delta[PQ_jacobian[x].Bus_num]-delta[VD_jacobian[y].Bus_num])))
+    printing_jacobian(j)
     return j
 
 
@@ -156,29 +184,38 @@ def delta_VD(PQ_vec, PQ_calc, j_inv):
 
 
 
-def updateVD(VD_vec, delta_vd):
+def updateVD(VD_vec, delta_vd, bus_type_init, power_network):
     VD_vec_updated = VD_vec.copy()
+    c = 0
+    for x in range(len(power_network.get_bus_num_vec())):
+        if(np.isnan(power_network.get_buses()[x].delta)):
+            c += 1
+    for x in range(len(power_network.get_bus_num_vec())):
+        if(np.isnan(power_network.get_buses()[x].V)):
+            c += 1
+        if (bus_type_init[x] != power_network.get_bus_type_vec()[x]):
+            VD_vec[c].insert(c-1, 1)
     VD_vec_updated = np.array(VD_vec) + np.array(delta_vd)
     return VD_vec_updated
 
 
 
-def updateVD_vec(VD_vec_current,delta_current,V_current):
-    delta_updated = delta_current.copy()
-    V_updated = V_current.copy()
+def updateVD_vec(VD_vec_current,delta,V, bus_type_init, power_network):
+    delta_current = delta.copy()
+    V_current = V.copy()
     c = 0
-    for x in range(len(delta_updated)):
-        if (np.isnan(delta_updated[x])):
-            delta_updated[x] = VD_vec_current[c]
+    for x in range(len(delta_current)):
+        if (np.isnan(delta_current[x])):
+            delta_current[x] = VD_vec_current[c]
             c += 1
 
-    for x in range(len(V_updated)):
-        if (np.isnan(V_updated[x])):
-            V_updated[x] = VD_vec_current[c]
-            c += 1 
-    print(delta_updated)   
-    print(V_updated)    
-    return delta_updated, V_updated
+    for x in range(len(V_current)):
+        if (bus_type_init[x] != power_network.get_bus_type_vec()[x]):
+            V_current[x] = 1
+        elif (np.isnan(V_current[x])):
+            V_current[x] = VD_vec_current[c]
+            c += 1     
+    return delta_current, V_current
 
 
 
@@ -228,18 +265,37 @@ def Q_max_violation(Q_updated, Q_max, bus_num, V, power_network):
         else:
             #print('Bus', bus_num[i+1], 'is within its boundaries.')
             continue
-        print(power_network.get_Q_vec())
-        print(power_network.get_V_vec())
+        #print(power_network.get_Q_vec())
+        #print(power_network.get_V_vec())
         power_network = Network(Buses)
-    return Q_updated, V_updated, power_network
+    return Q_updated, power_network
 
+def PQ_to_PV(bus_type_init, Q_updated, Q_max, V_updated, power_network):
+    Buses = power_network.buses
+    #Q_updated = [0.75, -2.37, 1.07, 2.06, -0.43]
+    for i in range (len(Q_max)):
+        if (bus_type_init[i] != power_network.get_bus_type_vec()[i] and Q_updated[i] < Q_max[i]):
+            Buses[i].bus_type = 1
+            Buses[i].Q = np.nan
+            Buses[i].V = V_updated[i]
+        else:
+            continue
+        power_network = Network(Buses)
+    return power_network
 
-
-def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current):
+def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current, power_network, bus_type_init):
     #1
-
-    delta_updated, V_updated = updateVD_vec(VD_vec_current, delta, V)
-    
+    print("VD_vec")
+    print(VD_vec_current)
+    print("delta")
+    print(delta)
+    print("V")
+    print(V)
+    delta_updated, V_updated = updateVD_vec(VD_vec_current, delta, V, bus_type_init, power_network)
+    print("delta_U")
+    print(delta_updated)
+    print("V_U")
+    print(V_updated)
     #2
     P_calc = P_Calc(V_updated, Ybus, bus_num_init, delta_updated, P_init)
     Q_calc = Q_Calc(V_updated, Ybus, bus_num_init, delta_updated, Q_init)
@@ -257,10 +313,15 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, d
     delta_vd = delta_VD(PQ_vec, PQ_calc_updated, j_inv)
     
     #7
-    VD_vec_current = updateVD(VD_vec_current, delta_vd)
+    print("Vd_vec")
+    print(VD_vec_current)
+    VD_vec_current = updateVD(VD_vec_current, delta_vd, bus_type_init, power_network)
+    
 
     #8
-    delta_updated, V_updated = updateVD_vec(VD_vec_current,delta_updated,V_updated)
+    delta_updated, V_updated = updateVD_vec(VD_vec_current,delta,V, bus_type_init, power_network)
+    print(delta_updated)
+    print(V_updated)
 
     #9
     PQ_vec_updated = updatePQ_vec(PQ_vec, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init)
