@@ -91,10 +91,8 @@ def NR(Ybus, power_network, convergence, Q_max):
             PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
             VD_vec, VD_jacobian = power_network.get_VD_jacobian()
             bus_type_init = power_network.get_bus_type_vec()
-            i += 1
             """
-   
-
+            i += 1
     return PQ_vec_updated, P_updated, Q_updated 
       
 
