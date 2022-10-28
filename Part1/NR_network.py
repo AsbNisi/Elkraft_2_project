@@ -25,6 +25,53 @@ class Network:
         for x in range(len(self.buses)):
             P_vec.append(self.buses[x].P)
         return P_vec
+    
+    def get_P_vec_FD(self):
+        P_vec = []
+        for x in range(len(self.buses)):
+            if (np.isnan(self.buses[x].P) == False):
+                P_vec.append(self.buses[x].P)
+            else:
+                continue
+        return P_vec
+
+    def get_Q_vec_FD(self):
+        Q_vec = []
+        for x in range(len(self.buses)):
+            if (self.buses[x].bus_type == 2):
+                Q_vec.append(self.buses[x].Q)
+            else:
+                continue
+        return Q_vec
+
+    def get_V_vec_FD(self):
+        V_vec_1 = []
+        V_vec_2 = []
+        for x in range(len(self.buses)):
+            if (self.buses[x].bus_type != 0): 
+                if (self.buses[x].bus_type != 1): 
+                    V_vec_1.append(1)
+                else: 
+                    V_vec_1.append(self.buses[x].V)
+            if (self.buses[x].bus_type == 2):
+                V_vec_2.append(1)
+
+            else:
+                continue
+        return V_vec_1, V_vec_2
+
+    def get_delta_vec_FD(self):
+        delta_vec = []
+        for x in range(len(self.buses)):
+            if (self.buses[x].bus_type != 0):
+                if (np.isnan(self.buses[x].V) == True):
+                    delta_vec.append(1)
+                if (np.isnan(self.buses[x].V) == False):
+                    delta_vec.append(self.buses[x].V)
+            else:
+                continue
+        return delta_vec
+
 
     def get_Q_vec(self):
         Q_vec = []
