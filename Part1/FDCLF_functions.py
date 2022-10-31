@@ -1,4 +1,5 @@
 from operator import matmul
+from re import I
 import numpy as np
 import pandas as pd
 import cmath
@@ -76,7 +77,7 @@ def Ybus_fdclf(file, shape, bus_file, power_network):
 def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q):
     
     #1 Get delta_P
-    P_updated = P_Calc(V, Ybus, bus_num_init, delta,P)
+    P_updated = P_Calc(V, Ybus, bus_num_init, delta, P)
 
     for x in range(num_buses):
         if (bus_type_vec[x] == 0):
@@ -86,30 +87,34 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
    
     #2 Get delta_Delta
     b_dash_inv =  np.linalg.inv(b_dash)
-    
+   
     delta_Delta = np.matmul(-b_dash_inv,(delta_P/V_vec_1))
 
+    print('delta_Delta')
+    print(delta_Delta)
+    print('----')
     delta_updated = delta_vec.copy()
+    
     i=0
-    for x in range(len(delta_vec)):
-        if (delta_vec[x-1] == 0):
-            delta_vec = np.delete(delta_vec, x , 0)
-            i += 1 
+    if(len(delta_vec) > len(delta_Delta)):
+        for x in range(len(delta_vec)):
+            if (bus_type_vec[x] == 0):
+                    delta_vec = np.delete(delta_vec, x-i, 0)
+                    i += 1 
+
     delta_updated = delta_vec + delta_Delta
     delta_updated = delta_updated.tolist()
-    print(delta_updated)
 
+    
     for x in range(num_buses):
         if (bus_type_vec[x] == 0):
             delta_updated.insert(x,0)
+
 
     #delta_updated = np.array(delta_updated)
     #3 Find Q with new delta values
     Q_updated  = Q_Calc(V, Ybus, bus_num_init, delta_updated, Q)
 
-   
-    
-    
     i = 0
     for x in range(num_buses):
         if (bus_type_vec[x] == 0 or bus_type_vec[x] == 1):
@@ -120,9 +125,7 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
 
     #4 Find new V values
     b_double_dash_inv = np.linalg.inv(b_double_dash)
-    print( b_double_dash_inv)
     delta_V = np.matmul(-b_double_dash_inv ,(delta_Q/V_vec_2))
-    print(delta_V)
     V_limited = []
     for x in range(num_buses):
         if (bus_type_vec[x] == 2):
@@ -139,7 +142,6 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
         else:
             continue
 
-    print(V)
     # Updating values for V_vec_1 and V_vec_2
     V_vec_1_updated = V_vec_1.copy()
     V_vec_2_updated = V_vec_2.copy()
@@ -155,11 +157,9 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
             V_vec_2_updated[x-j] = V[x]
         else:
             j += 1
-        
-    
-    print("V_vec")
-    print(V_vec_1_updated)
-    print(V_vec_2_updated)
+    print(V)
+    print(delta_updated)
+
     return V, delta_updated, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated
 
 

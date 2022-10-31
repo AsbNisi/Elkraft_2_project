@@ -63,10 +63,10 @@ class Network:
         delta_vec = []
         for x in range(len(self.buses)):
             if (self.buses[x].bus_type != 0):
-                if (np.isnan(self.buses[x].V) == True):
-                    delta_vec.append(1)
-                if (np.isnan(self.buses[x].V) == False):
-                    delta_vec.append(self.buses[x].V)
+                if (np.isnan(self.buses[x].delta) == True):
+                    delta_vec.append(0)
+                if (np.isnan(self.buses[x].delta) == False):
+                    delta_vec.append(self.buses[x].delta)
             else:
                 continue
         return delta_vec
