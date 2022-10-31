@@ -72,14 +72,14 @@ def Ybus_fdclf(file, shape, bus_file, power_network):
 
 
 
-    def iterate_fdclf(num_buses, V, V_vec_1, V_vec_2, delta, delta_vec, V_vec, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash):
+def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q):
+    
     #1 Get delta_P
-
-    P_updated = P_calc(V, Ybus, num_buses, delta)
+    P_updated = P_Calc(V, Ybus, bus_num_init, delta,P)
 
     for x in range(num_buses):
         if (bus_type_vec[x] == 0):
-        P_updated = del P_updated[x]
+            P_updated = np.delete(P_updated, x, 0)
 
     delta_P = P_vec_FD - P_updated
 
@@ -88,17 +88,20 @@ def Ybus_fdclf(file, shape, bus_file, power_network):
 
     delta_Delta = - b_dash_inv*(delta_P/V_vec_1)
     delta_updated = delta_vec + delta_Delta
+    delta_updated = delta_updated.tolist()
 
     for x in range(num_buses):
         if (bus_type_vec[x] == 0):
             delta_updated.insert(x,0)
-
+    print(delta)
+    print(delta_updated)
+    #delta_updated = np.array(delta_updated)
     #3 Find Q with new delta values
-    Q_updated  = Q_calc(V, Ybus, num_buses, delta_updated)
+    Q_updated  = Q_Calc(V, Ybus, bus_num_init, delta_updated, Q)
 
     for x in range(num_buses):
         if (bus_type_vec[x] == 0 or bus_type_vec[x] == 1):
-            Q_updated = del Q_updated[x]
+            Q_updated = np.delete(Q_updated, x, 0)
 
     delta_Q = Q_vec_FD - Q_updated
 
@@ -117,12 +120,23 @@ def Ybus_fdclf(file, shape, bus_file, power_network):
     i = 0
     for x in range(num_buses):
         if (bus_type_vec[x] == 2):
-            V[x] = V_limited[i]
+            V[x] = V_updated[i]
             i += 1
         else:
             continue
+
+
+    # Updating values for V_vec_1 and V_vec_2
+    V_vec_1_updated = V_vec_1.copy()
+    V_vec_2_updated = V_vec_2.copy()
+
+    for x in range(len(bus_type_vec)):
+        if (bus_type_vec[x] != 0): 
+            V_vec_1_updated[x] = V[x]
+        if (bus_type_vec[x] == 2):
+            V_vec_2_updated[x] == V[x]
     
-    return V_updated, delta_updated, P_updated, Q_updated
+    return V, delta_updated, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated
 
 
 

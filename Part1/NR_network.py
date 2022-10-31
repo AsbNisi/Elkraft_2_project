@@ -55,7 +55,6 @@ class Network:
                     V_vec_1.append(self.buses[x].V)
             if (self.buses[x].bus_type == 2):
                 V_vec_2.append(1)
-
             else:
                 continue
         return V_vec_1, V_vec_2
