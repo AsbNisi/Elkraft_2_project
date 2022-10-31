@@ -89,17 +89,15 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
     
     delta_Delta = np.matmul(-b_dash_inv,(delta_P/V_vec_1))
 
-    print("Delta")
-    print(delta_vec)
-    print(delta_Delta)
-    for x in range(len(delta_updated)):
-        if (delta_updated == 0):
-            delta_updated = np.delete(delta_updated, x , 0)
-        
-        
+    delta_updated = delta_vec.copy()
+    i=0
+    for x in range(len(delta_vec)):
+        if (delta_vec[x-1] == 0):
+            delta_vec = np.delete(delta_vec, x , 0)
+            i += 1 
     delta_updated = delta_vec + delta_Delta
     delta_updated = delta_updated.tolist()
-
+    print(delta_updated)
 
     for x in range(num_buses):
         if (bus_type_vec[x] == 0):

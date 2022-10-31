@@ -308,6 +308,21 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, d
     #print(V_updated)
     #2
     P_calc = P_Calc(V_updated, Ybus, bus_num_init, delta_updated, P_init)
+
+    print("----------")
+    print("----------")
+    print("----------")
+    print("----------")
+    print(V_updated)
+    print(Ybus)
+    print(bus_num_init)
+    print(delta_updated)
+    print(P_init)
+    print("----------")
+    print("----------")
+    print("----------")
+    print("----------")
+
     Q_calc = Q_Calc(V_updated, Ybus, bus_num_init, delta_updated, Q_init)
     
     #3
