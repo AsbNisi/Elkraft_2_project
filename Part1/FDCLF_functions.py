@@ -1,3 +1,4 @@
+from operator import matmul
 import numpy as np
 import pandas as pd
 import cmath
@@ -80,35 +81,50 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
     for x in range(num_buses):
         if (bus_type_vec[x] == 0):
             P_updated = np.delete(P_updated, x, 0)
-
+ 
     delta_P = P_vec_FD - P_updated
-
+   
     #2 Get delta_Delta
     b_dash_inv =  np.linalg.inv(b_dash)
+    
+    delta_Delta = np.matmul(-b_dash_inv,(delta_P/V_vec_1))
 
-    delta_Delta = - b_dash_inv*(delta_P/V_vec_1)
+    print("Delta")
+    print(delta_vec)
+    print(delta_Delta)
+    for x in range(len(delta_updated)):
+        if (delta_updated == 0):
+            delta_updated = np.delete(delta_updated, x , 0)
+        
+        
     delta_updated = delta_vec + delta_Delta
     delta_updated = delta_updated.tolist()
+
 
     for x in range(num_buses):
         if (bus_type_vec[x] == 0):
             delta_updated.insert(x,0)
-    print(delta)
-    print(delta_updated)
+
     #delta_updated = np.array(delta_updated)
     #3 Find Q with new delta values
     Q_updated  = Q_Calc(V, Ybus, bus_num_init, delta_updated, Q)
 
+   
+    
+    
+    i = 0
     for x in range(num_buses):
         if (bus_type_vec[x] == 0 or bus_type_vec[x] == 1):
-            Q_updated = np.delete(Q_updated, x, 0)
+            Q_updated = np.delete(Q_updated, x + i, 0)
+            i -= 1
 
     delta_Q = Q_vec_FD - Q_updated
 
     #4 Find new V values
     b_double_dash_inv = np.linalg.inv(b_double_dash)
-
-    delta_V = -b_double_dash_inv * (delta_Q/V_vec_2)
+    print( b_double_dash_inv)
+    delta_V = np.matmul(-b_double_dash_inv ,(delta_Q/V_vec_2))
+    print(delta_V)
     V_limited = []
     for x in range(num_buses):
         if (bus_type_vec[x] == 2):
@@ -125,17 +141,27 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
         else:
             continue
 
-
+    print(V)
     # Updating values for V_vec_1 and V_vec_2
     V_vec_1_updated = V_vec_1.copy()
     V_vec_2_updated = V_vec_2.copy()
 
+    i = 0
+    j = 0
     for x in range(len(bus_type_vec)):
         if (bus_type_vec[x] != 0): 
-            V_vec_1_updated[x] = V[x]
+            V_vec_1_updated[x-i] = V[x]
+        else:
+            i += 1
         if (bus_type_vec[x] == 2):
-            V_vec_2_updated[x] == V[x]
+            V_vec_2_updated[x-j] = V[x]
+        else:
+            j += 1
+        
     
+    print("V_vec")
+    print(V_vec_1_updated)
+    print(V_vec_2_updated)
     return V, delta_updated, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated
 
 
