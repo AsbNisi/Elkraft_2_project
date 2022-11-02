@@ -102,6 +102,7 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
     print('delta')
     print(delta)
     P_updated = P_Updated(V, Ybus, bus_num_init, delta)
+    p_updated_return = P_updated.copy()
 
     for x in range(num_buses):
         if (bus_type_vec[x] == 0):
@@ -146,6 +147,7 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
     #delta_updated = np.array(delta_updated)
     #3 Find Q with new delta values
     Q_updated  = Q_Updated(V, Ybus, bus_num_init, delta_updated)
+    Q_updated_return = Q_updated.copy()
 
     i = 0
     for x in range(num_buses):
@@ -196,7 +198,7 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
     print(delta_updated)
     print('..........')
 
-    return V, delta_updated, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated
+    return V, delta_updated, p_updated_return, Q_updated_return, V_vec_1_updated, V_vec_2_updated
 
 
 
