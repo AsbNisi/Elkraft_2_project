@@ -294,63 +294,36 @@ def PQ_to_PV(bus_type_init, Q_updated, Q_max, V_updated, power_network):
     return power_network
 
 def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current, power_network, bus_type_init, bus_type):
-    #1
-    print("VD_vec")
-    print(VD_vec_current)
-    print("delta")
-    print(delta)
-    print("V")
-    print(V)
-    delta_updated, V_updated = updateVD_vec(VD_vec_current, delta, V, bus_type_init, bus_type)
-    #print("delta_U")
-    #print(delta_updated)
-    #print("V_U")
-    #print(V_updated)
-    #2
-    P_calc = P_Calc(V_updated, Ybus, bus_num_init, delta_updated, P_init)
+    #1 Updates V_values and delta_values in separate vectores tougether with given values.  
 
-    print("----------")
-    print("----------")
-    print("----------")
-    print("----------")
-    print(V_updated)
-    print(Ybus)
-    print(bus_num_init)
-    print(delta_updated)
-    print(P_init)
-    print("----------")
-    print("----------")
-    print("----------")
-    print("----------")
+    delta_updated, V_updated = updateVD_vec(VD_vec_current, delta, V, bus_type_init, bus_type)
+
+    #2 Calculates new values for P and Q separately
+
+    P_calc = P_Calc(V_updated, Ybus, bus_num_init, delta_updated, P_init)
 
     Q_calc = Q_Calc(V_updated, Ybus, bus_num_init, delta_updated, Q_init)
     
-    #3
+    #3 Updates RHS of inverted-jacobi-equation 
     PQ_calc_updated = get_PQ_calc(P_calc, Q_calc) 
 
-    #4
+    #4 Creating new jacobian
     j = make_jacobian(VD_jacobian, PQ_jacobian, PQ_calc_updated, num_buses, V_updated, delta_updated, Ybus)
     
-    #5
+    #5 Inverting jacobian 
     j_inv = np.linalg.inv(j)
 
-    #6
+    #6 Updates LHS of  inverted-jacobi-equation
     delta_vd = delta_VD(PQ_vec, PQ_calc_updated, j_inv)
     
-    #7
-    print("Vd_vec")
-    print(VD_vec_current)
-    print("delta_vd")
-    print(delta_vd)
+    #7 Updates values for V and delta
     VD_vec_current = updateVD(VD_vec_current, delta_vd, bus_type_init, bus_type, delta, V)
     
 
-    #8
+    #8 Updates V_values and delta_values in separate vectores tougether with given values.  
     delta_updated, V_updated = updateVD_vec(VD_vec_current,delta,V, bus_type_init, bus_type)
-    #print(delta_updated)
-    #print(V_updated)
 
-    #9
+    #9 Updates P and Q values in one given vector 
     PQ_vec_updated = updatePQ_vec(PQ_vec, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init)
 
     return PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd
