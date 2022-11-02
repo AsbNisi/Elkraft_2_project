@@ -9,48 +9,7 @@ from DCLF_functions import Ybus_dclf, printing_Y_bus, iterate_dclf
 from NR_network import Network, Buses, PQ, VD
 
 
-
-
-
-
 def Ybus_fdclf(file, shape, bus_file, power_network, Ybus):
-    """ 
-    bus_vec = read_buses(bus_file)
-
-    df_impedances = pd.read_csv(file, sep=";")
-    Z_values = np.zeros((shape,shape), dtype=complex)
-    Y_bus = np.zeros((shape,shape), dtype=complex)
-    
-    num_PV = 0
-    for x in range(len(bus_vec)):
-        if(bus_vec[x].bus_type==1):
-            num_PV +=1
-
-    for x in range(df_impedances.shape[0]):
-
-        bus_type = bus_vec[x].bus_type
-        from_line = df_impedances['From_line'][x]
-        to_line = df_impedances['To_line'][x]
-
-        # Adding the diagonal elements to the Y-bus
-        Y_bus[from_line-1][from_line-1] += 1/(df_impedances['X'][x]*1j)
-        Y_bus[from_line-1][from_line-1] += 1/2*(df_impedances['Full_line_B'][x]*1j)
-        Y_bus[to_line-1][to_line-1] += 1/(df_impedances['X'][x]*1j)
-        Y_bus[to_line-1][to_line-1] += 1/2*(df_impedances['Full_line_B'][x]*1j)
-
-        # Z values for off diagonal elements
-        Z_values[from_line-1][to_line-1] = df_impedances['X'][x]*1j
-        Z_values[to_line-1][from_line-1] = df_impedances['X'][x]*1j
-    # Adding off diagonal elements
-    for i in range(shape):
-        for j in range(shape):
-            if(Z_values[i][j] != 0. +0.j):
-                if(i != j):
-                    Y_bus[i][j] = - 1/Z_values[i][j]
-            else:
-                if(i != j):
-                    Y_bus[i][j] = Z_values[i][j]
-    """
 
     bus_vec = read_buses(bus_file)
 
@@ -93,14 +52,9 @@ def Ybus_fdclf(file, shape, bus_file, power_network, Ybus):
     return b_dash, b_double_dash
 
 
-
 def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q):
     
     #1 Get delta_P
-    print('V')
-    print(V)
-    print('delta')
-    print(delta)
     P_updated = P_Updated(V, Ybus, bus_num_init, delta)
     p_updated_return = P_updated.copy()
 
@@ -108,24 +62,12 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
         if (bus_type_vec[x] == 0):
             P_updated = np.delete(P_updated, x, 0)
  
-    print('P_vec_FD')
-    print(P_vec_FD)
-    print('P_updated')
-    print(P_updated)
-
     delta_P = P_vec_FD - P_updated
-    print('Delta p ')
-    print(delta_P)
-    
-   
+       
     #2 Get delta_Delta
     b_dash_inv =  np.linalg.inv(b_dash)
    
     delta_Delta = np.matmul(-b_dash_inv,(delta_P/V_vec_1))
-
-    print('delta_Delta')
-    print(delta_Delta)
-    print('----')
     delta_updated = delta_vec.copy()
     
     i=0
@@ -142,7 +84,6 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
     for x in range(num_buses):
         if (bus_type_vec[x] == 0):
             delta_updated.insert(x,0)
-
 
     #delta_updated = np.array(delta_updated)
     #3 Find Q with new delta values
@@ -191,14 +132,7 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
             V_vec_2_updated[x-j] = V[x]
         else:
             j += 1
-    print('V')
-    print(V)
-    print('.........')
-    print('delta_updated')
-    print(delta_updated)
-    print('..........')
-
-    return V, delta_updated, p_updated_return, Q_updated_return, V_vec_1_updated, V_vec_2_updated
+    return V, delta_updated, delta_P, delta_Delta, p_updated_return, Q_updated_return, V_vec_1_updated, V_vec_2_updated
 
 
 

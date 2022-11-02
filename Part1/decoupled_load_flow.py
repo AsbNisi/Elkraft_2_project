@@ -7,7 +7,6 @@ from DCLF_functions import Ybus_dclf, printing_Y_bus, iterate_dclf
 from NR_network import Network, Buses, PQ, VD
 
 
-
 bus_vec = read_buses('Part1/Busdata.csv')
 power_network = Network(bus_vec)
 #print(power_network.get_bus(2))

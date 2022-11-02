@@ -3,14 +3,12 @@ import pandas as pd
 import cmath
 
 from FDCLF_functions import Ybus_fdclf, iterate_fdclf
-from NR_functions import read_buses, P_Calc, Q_Calc, get_PQ_calc, delta_VD, updateVD, updateVD_vec, updatePQ_vec, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV, Ybus
-from DCLF_functions import Ybus_dclf, printing_Y_bus, iterate_dclf
-from NR_network import Network, Buses, PQ, VD
+from NR_functions import read_buses, Ybus
+from NR_network import Network
 
 
 bus_vec = read_buses('Part1/Busdata.csv')
 power_network = Network(bus_vec)
-#print(power_network.get_bus(2))
 Ybus = Ybus('Part1/impedances.csv', 5)
 
 convergence = 0.00001
@@ -34,8 +32,10 @@ def FDCLF(Ybus, power_network, convergence, Q_max):
 
     print(Ybus)
 
+    delta_Delta = [1]
+    delta_P = [1]
     i= 0
-    while(True):
+    while((abs(max(np.real(delta_Delta))) > convergence) and (abs(max(np.real(delta_P))) > convergence)):
         if (i==0):
             print("Iteration", i+1, ": \n")
             print('V')
@@ -47,17 +47,16 @@ def FDCLF(Ybus, power_network, convergence, Q_max):
             print('P')
             print(P)
             print('.........')
-            bus_type = power_network.get_bus_type_vec()
-            V_updated, delta_updated, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated = iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec_init, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q)
+            V_updated, delta_updated, delta_P, delta_Delta, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated = iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec_init, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q)
                                                                              
             i += 1
             #printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_vec)
         
-        elif (i==5):
+        elif (i==20):
             break
         else:
             print("Iteration", i+1, ": \n")
-            V_updated, delta_updated, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated = iterate_fdclf(num_buses, bus_num_init, V_updated, V_vec_1_updated, V_vec_2_updated, delta_updated, delta_updated, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q)
+            V_updated, delta_updated, delta_P, delta_Delta, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated = iterate_fdclf(num_buses, bus_num_init, V_updated, V_vec_1_updated, V_vec_2_updated, delta_updated, delta_updated, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q)
             #printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_vec)
             
             print('V_updated')
@@ -77,6 +76,10 @@ def FDCLF(Ybus, power_network, convergence, Q_max):
 
 P, Q = FDCLF(Ybus, power_network, convergence, Q_max)
 
+print('Calculated P values')
 print(P)
+print('...............')
+print('Calculated P values')
 print(Q)
+print('................')
 
