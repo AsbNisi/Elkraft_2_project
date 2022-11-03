@@ -85,7 +85,7 @@ def Ybus(file, shape):
     """
     printing_Y_bus(Y_bus)
     
-    read_transformers(Y_bus, "Data_transformers.csv", shape)
+    read_transformers(Y_bus, "Part1/Task4/Data_transformers.csv", shape)
     
     return Y_bus
 
@@ -94,20 +94,25 @@ def Ybus(file, shape):
 def read_transformers(Y_bus, file, shape):
     df_trans_info = pd.read_csv(file, sep=";")
     
+    
     for x in range(df_trans_info.shape[0]):
         from_line = df_trans_info['From_line'][x]
-        to_line = df_trans_info['To_line'][x]
+        to_line = df_trans_info['To_line'][x]     
+        X = df_trans_info['X'][x] 
+        a_mag = df_trans_info['a_magnitude'][x]       
+        a_angle = df_trans_info['a_angle'][x]  
         
-        print(to_line)
+        a = complex(df_trans_info['a_magnitude'][x], df_trans_info['a_angle'][x])
+        if df_trans_info['X'][x] == 0:
+            Y_transformer = 0
+        else:
+            Y_transformer = 1/complex(0, df_trans_info['X'][x])
         
-        print(df_trans_info['a_magnitude'][x])
-        #a = complex(float(df_trans_info['a_magnitude'][x]), float(df_trans_info['a_angle'][x]))
-        Y_transformer = 1/complex(0, df_trans_info['X'][x])
-        
-        Y_bus[from_line-1][from_line-1] += Y_transformer#/a**2
-        Y_bus[from_line-1][to_line-1] -= Y_transformer#/a
-        Y_bus[to_line-1][from_line-1] -= Y_transformer#/a
+        Y_bus[from_line-1][from_line-1] += Y_transformer/a**2
+        Y_bus[from_line-1][to_line-1] -= Y_transformer/np.conjugate(a)
+        Y_bus[to_line-1][from_line-1] -= Y_transformer/a
         Y_bus[to_line-1][to_line-1] += Y_transformer
+    
     print("This is the new YBus")
     printing_Y_bus(Y_bus)
     return Y_bus
