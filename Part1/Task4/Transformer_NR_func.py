@@ -66,7 +66,7 @@ def Ybus(file, shape):
                     Y_bus[i][j] = Z_values[i][j]
     printing_Y_bus(Y_bus)
     
-    
+    """
     #Alternating Y_bus due to the phase-shifting Transformer on line 1-4
     a_phase_shift = 1*(np.cos(np.deg2rad(4)) + complex(0, np.sin(np.deg2rad(4))))
     Y_phase_shift = 1/complex(0,0.2) 
@@ -82,16 +82,35 @@ def Ybus(file, shape):
     Y_bus[3][4] -= Y_tap/np.conjugate(a_tap)
     Y_bus[4][3] -= Y_tap/a_tap
     Y_bus[4][4] += Y_tap
-    
+    """
     printing_Y_bus(Y_bus)
+    
+    read_transformers(Y_bus, "Data_transformers.csv", shape)
+    
     return Y_bus
 
 #Reading transformer alterations from file
 #Alteration of Y_bus due to added transformers, both phase-shifting and tap
-def read_transformers(file):
+def read_transformers(Y_bus, file, shape):
     df_trans_info = pd.read_csv(file, sep=";")
     
-    return
+    for x in range(df_trans_info.shape[0]):
+        from_line = df_trans_info['From_line'][x]
+        to_line = df_trans_info['To_line'][x]
+        
+        print(to_line)
+        
+        print(df_trans_info['a_magnitude'][x])
+        #a = complex(float(df_trans_info['a_magnitude'][x]), float(df_trans_info['a_angle'][x]))
+        Y_transformer = 1/complex(0, df_trans_info['X'][x])
+        
+        Y_bus[from_line-1][from_line-1] += Y_transformer#/a**2
+        Y_bus[from_line-1][to_line-1] -= Y_transformer#/a
+        Y_bus[to_line-1][from_line-1] -= Y_transformer#/a
+        Y_bus[to_line-1][to_line-1] += Y_transformer
+    print("This is the new YBus")
+    printing_Y_bus(Y_bus)
+    return Y_bus
 
 
 # Reading bus_data from file

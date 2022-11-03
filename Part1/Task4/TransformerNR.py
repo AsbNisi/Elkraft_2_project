@@ -14,7 +14,7 @@ power_network = Network(bus_vec)
 
 #print(power_network.get_bus(2))
 
-Ybus = Ybus('Part1/impedances.csv', 5)
+Ybus = Ybus('Part1/impedances.csv', len(bus_vec))
 convergence = 0.00001
 Q_max = [0.5, 5, 1.5,5,5]
 
