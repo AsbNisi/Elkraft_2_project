@@ -70,7 +70,7 @@ def NR(Ybus, power_network, convergence, Q_max):
             #print(V_updated)
             #print(Q_calc)
         
-        elif (i==5):
+        elif (i==10):
             break
         else:
             print("Iteration", i+1, ": \n")
