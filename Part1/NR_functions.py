@@ -2,26 +2,25 @@ from lib2to3.pgen2.pgen import DFAState
 from logging import error
 import numpy as np
 import pandas as pd
-import os
 import cmath
-from NR_network import Network, Buses, PQ, VD
+from NR_network import Network, Buses
 from pandas import *
 
-#from symbol import power
+#Better output Y_bus
 def printing_Y_bus(Ybus):
     df = DataFrame(Ybus)
     df.index = np.arange(1, len(df)+1)
     df.columns = np.arange(1, len(df)+1)
     print('Ybus: \n', df, '\n')
     return 
-
+#Better output jacobian 
 def printing_jacobian(j):
     df1 = DataFrame(np.real(j))
     df1.index = np.arange(1, len(df1)+1)
     df1.columns = np.arange(1, len(df1)+1)
     print('Jacobian: \n', df1, '\n')
     return 
-
+#Better output buses
 def printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type):
     print ('Updated vales for iteration number #. Values in pu and rad.\n')
     d = {}
@@ -69,7 +68,7 @@ def Ybus(file, shape):
 
 
 # Reading bus_data from file
-# Adding the information to class objects
+# Adding the information to class objects Bus
 def read_buses(file):
     bus_vec = []
     df_buses = pd.read_csv(file, sep=";")
@@ -86,7 +85,7 @@ def read_buses(file):
     return bus_vec
 
 
-# Calculation of P_values
+# Calculation of P_values, returns nan if value of P is unkonwn 
 def P_Calc(V, YBus, BusNum, delta, P):
     P_Calc = np.zeros(len(BusNum), dtype=complex)
     for i in range (len(BusNum)):
@@ -99,7 +98,7 @@ def P_Calc(V, YBus, BusNum, delta, P):
     return P_Calc
 
 
-#Function to caluculate the known Q values
+#Function to caluculate the known Q values, returns nan if value of Q is unkonwn 
 def Q_Calc(V, YBus, BusNum, delta, Q):
     Q_Calc = np.zeros(len(BusNum), dtype=complex)
     for i in range (len(BusNum)):
@@ -112,21 +111,20 @@ def Q_Calc(V, YBus, BusNum, delta, Q):
     return Q_Calc
 
 
+#Returns the caculated part of delta_PQ (LHS of jacobi equation). The given values for P and Q is obtained by a get function in the Network class. get_PQ_vec(self)
 def get_PQ_calc(P_calculated, Q_calculated):
     PQ_calc = []
     for x in range(len(P_calculated)):
         if (np.isnan(P_calculated[x]) == False):
             PQ_calc.append(P_calculated[x])
-            #PQ_calc[count] = P_calculated[x]
 
     for x in range(len(Q_calculated)):
         if (np.isnan(Q_calculated[x]) == False):
             PQ_calc.append(Q_calculated[x])
-            #PQ_calc[count] = Q_calculated[x]
     return PQ_calc
 
 
-
+#Creates the jacobi-matrix
 def make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, Ybus):
     j = np.zeros((len(PQ_vec),len(PQ_vec)), dtype=complex)
     
@@ -176,7 +174,7 @@ def make_jacobian(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, Ybus):
     return j
 
 
-
+#Obtaining LHS of inverse jacobi equation 
 def delta_VD(PQ_vec, PQ_calc, j_inv):
     delta_PQ = np.array(PQ_vec) - np.array(PQ_calc)
     delta_VD = np.matmul(j_inv,delta_PQ)
@@ -184,7 +182,7 @@ def delta_VD(PQ_vec, PQ_calc, j_inv):
 
 
 
-
+#Updates values for unknown Voltages and Deltas 
 def updateVD(VD_vec, delta_vd, bus_type_init, bus_type, delta, V):
     VD_vec_updated = VD_vec.copy()
     VD_vec = np.array(VD_vec).tolist()
@@ -199,16 +197,13 @@ def updateVD(VD_vec, delta_vd, bus_type_init, bus_type, delta, V):
         #if (bus_type_init[x] != bus_type[x]):
             #VD_vec.insert(c-1, 1)
 
-    print("VD_vec")
-    print(VD_vec)
-
     
     VD_vec_updated = np.array(VD_vec) + np.array(delta_vd)
     #VD_vec_updated = VD_vec_updated.tolist
     return VD_vec_updated
 
 
-
+#Splits the updated values of V and delta in two separate vectors  
 def updateVD_vec(VD_vec_current,delta,V, bus_type_init, bus_type):
     delta_current = delta.copy()
     VD_vec_current = np.array(VD_vec_current).tolist()
@@ -234,14 +229,14 @@ def updateVD_vec(VD_vec_current,delta,V, bus_type_init, bus_type):
     return delta_current, V_current
 
 
-
+#Updates The calculated values for P and Q with new delta and V_values 
 def updatePQ_vec(PQ_vec, V_current, delta_current, Ybus, bus_num_init, P_init, Q_init):
     P_calc_updated = P_Calc(V_current, Ybus, bus_num_init, delta_current, P_init)
     Q_calc_updated = Q_Calc(V_current, Ybus, bus_num_init, delta_current, Q_init)
     return get_PQ_calc(P_calc_updated, Q_calc_updated) 
     
 
-#Function to caluculate updated P values
+#Function to caluculate updated P values. Calculates all values 
 def P_Updated(V, YBus, BusNum, delta):
     P_Updated = np.zeros(len(BusNum), dtype=complex)
     for i in range (len(BusNum)):
@@ -250,7 +245,7 @@ def P_Updated(V, YBus, BusNum, delta):
                         +np.imag(YBus)[i][j]*cmath.sin(delta[i]-delta[j]))) 
     return P_Updated
 
-#Function to caluculate updated Q values
+#Function to caluculate updated Q values. Calculates all values
 def Q_Updated(V, YBus, BusNum, delta):
     Q_updated = np.zeros(len(BusNum), dtype=complex)
     for i in range (len(BusNum)):
@@ -259,7 +254,7 @@ def Q_Updated(V, YBus, BusNum, delta):
                          -np.imag(YBus)[i][j]*cmath.cos(delta[i]-delta[j]))) 
     return Q_updated
 
-
+#Function to check if Q is violated. Updates power network
 def Q_max_violation(Q_updated, Q_max, bus_num, V, power_network):
     V_updated = V.copy()
     Buses = power_network.buses
@@ -270,18 +265,13 @@ def Q_max_violation(Q_updated, Q_max, bus_num, V, power_network):
         if Q_max[i] < Q_updated[i]:
             print('Q_max is violated for bus ', bus_num[i+1], 'and needs to be type switched.')
             Buses[i].bus_type = 2
-            #powebus_type[i] = 2
             Q_updated[i] = Q_max[i]
             V_updated[i] = np.nan
             Buses[i].Q = Q_max[i]
-            Buses[i].V = np.nan
-            #print(V)
-            #print(bus_type)  
+            Buses[i].V = np.nan  
         else:
             #print('Bus', bus_num[i+1], 'is within its boundaries.')
             continue
-        #print(power_network.get_Q_vec())
-        #print(power_network.get_V_vec())
         power_network = Network(Buses)
     return Q_updated, power_network
 
@@ -299,15 +289,12 @@ def PQ_to_PV(bus_type_init, Q_updated, Q_max, V_updated, power_network):
     return power_network
 
 def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current, power_network, bus_type_init, bus_type):
+    
     #1 Updates V_values and delta_values in separate vectores tougether with given values.  
-    print("VD_vec_current itr")
-    print(VD_vec_current)
     delta_updated, V_updated = updateVD_vec(VD_vec_current, delta, V, bus_type_init, bus_type)
-    print("V of D_vec itr")
-    print(delta_updated)
-    print(V_updated)
+    
+    
     #2 Calculates new values for P and Q separately
-
     P_calc = P_Calc(V_updated, Ybus, bus_num_init, delta_updated, P_init)
 
     Q_calc = Q_Calc(V_updated, Ybus, bus_num_init, delta_updated, Q_init)
@@ -339,6 +326,8 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, d
     PQ_vec_updated = updatePQ_vec(PQ_vec, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init)
 
     return PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd
+
+
 
 
 def insert_VD_vec(delta, delta_updated, V, V_updated, VD_vec):

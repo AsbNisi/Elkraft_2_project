@@ -1,11 +1,8 @@
 import numpy as np
 import pandas as pd
-import os
-import cmath
 
 
-# Definition of network class
-
+# Definition of network class. A vector of buses
 class Network:
     def __init__(self, buses):
         self.buses = buses

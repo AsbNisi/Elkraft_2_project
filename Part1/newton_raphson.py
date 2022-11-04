@@ -1,18 +1,12 @@
 import numpy as np
-import pandas as pd
-import os
-import cmath
 
 
-
-from NR_functions import Ybus, read_buses, insert_VD_vec, P_Calc, Q_Calc, get_PQ_calc, make_jacobian, delta_VD, updateVD, updateVD_vec, updatePQ_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV
-from NR_network import Network, Buses, PQ, VD
+from NR_functions import Ybus, read_buses, insert_VD_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV
+from NR_network import Network
 
 bus_vec = read_buses('Part1/Busdata.csv')
 
 power_network = Network(bus_vec)
-
-#print(power_network.get_bus(2))
 
 Ybus = Ybus('Part1/impedances.csv', 5)
 convergence = 0.00001
@@ -115,11 +109,6 @@ def NR(Ybus, power_network, convergence, Q_max):
             VD_vec, VD_jacobian = power_network.get_VD_jacobian()
             bus_type_init = power_network.get_bus_type_vec()
             """
-
-            print('bus_type_init')
-            print(bus_type_init)
-            print('bus_type')
-            print(bus_type)
             
             VD_vec_current = insert_VD_vec(delta, delta_updated, V, V_updated, VD_vec)
 
