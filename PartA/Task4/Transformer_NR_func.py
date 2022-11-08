@@ -85,7 +85,7 @@ def Ybus(file, shape):
     """
     printing_Y_bus(Y_bus)
     
-    read_transformers(Y_bus, "Part1/Task4/Data_transformers.csv", shape)
+    read_transformers(Y_bus, "PartA/Task4/Data_transformers.csv", shape)
     
     return Y_bus
 

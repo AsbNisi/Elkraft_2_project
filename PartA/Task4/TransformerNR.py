@@ -8,13 +8,13 @@ import cmath
 from Transformer_NR_func import Ybus, read_buses, P_Calc, Q_Calc, get_PQ_calc, make_jacobian, delta_VD, updateVD, updateVD_vec, updatePQ_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV
 from Transformer_NR_network import Network, Buses, PQ, VD
 
-bus_vec = read_buses('Part1/Busdata.csv')
+bus_vec = read_buses('PartA/Busdata.csv')
 
 power_network = Network(bus_vec)
 
 #print(power_network.get_bus(2))
 
-Ybus = Ybus('Part1/impedances.csv', len(bus_vec))
+Ybus = Ybus('PartA/impedances.csv', len(bus_vec))
 convergence = 0.00001
 Q_max = [0.5, 5, 1.5,5,5]
 
