@@ -105,7 +105,7 @@ def read_transformers(Y_bus, file, shape):
         a_mag = df_trans_info['a_magnitude'][x]       
         a_angle = df_trans_info['a_angle'][x]  
         
-        a = complex(df_trans_info['a_magnitude'][x], df_trans_info['a_angle'][x])
+        a = complex(df_trans_info['a_magnitude'][x], np.deg2rad(df_trans_info['a_angle'][x]))
         if df_trans_info['X'][x] == 0:
             Y_transformer = 0
         else:
