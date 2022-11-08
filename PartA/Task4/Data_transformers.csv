@@ -1,6 +1,8 @@
-From_line;To_line;X;a_magnitude;a_angle;
+From_line;To_line;X;a_magnitude;a_angle
 1;2;0;1;0
 2;3;0;1;0
-1;4;0.2;1;4
+1;6;0;1;0
 2;4;0;1;0
-4;5;0.1;0.98;0
+4;7;0;1;0
+6;4;0.2;1;4
+7;5;0.1;0.98;0

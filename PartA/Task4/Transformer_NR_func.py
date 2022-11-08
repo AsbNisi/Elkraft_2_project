@@ -12,7 +12,7 @@ def printing_Y_bus(Ybus):
     df = DataFrame(Ybus)
     df.index = np.arange(1, len(df)+1)
     df.columns = np.arange(1, len(df)+1)
-    print('Ybus: \n', df, '\n')
+    print('Ybus: \n', round(df,4), '\n')
     return 
 
 def printing_jacobian(j):
@@ -47,24 +47,27 @@ def Ybus(file, shape):
         to_line = df_impedances['To_line'][x]
 
         # Adding the diagonal elements to the Y-bus
-        Y_bus[from_line-1][from_line-1] += 1/(df_impedances['R'][x] + df_impedances['X'][x]*1j)
-        Y_bus[from_line-1][from_line-1] += 1/2*(df_impedances['Full_line_B'][x]*1j)
-        Y_bus[to_line-1][to_line-1] += 1/(df_impedances['R'][x] + df_impedances['X'][x]*1j)
-        Y_bus[to_line-1][to_line-1] += 1/2*(df_impedances['Full_line_B'][x]*1j)
+        if df_impedances['X'][x] == 0:
+             Y_bus[from_line-1][from_line-1] == 0
+             Y_bus[to_line-1][to_line-1] == 0
+        else:
+            Y_bus[from_line-1][from_line-1] += 1/(df_impedances['R'][x] + df_impedances['X'][x]*1j)
+            Y_bus[from_line-1][from_line-1] += 1/2*(df_impedances['Full_line_B'][x]*1j)
+            Y_bus[to_line-1][to_line-1] += 1/(df_impedances['R'][x] + df_impedances['X'][x]*1j)
+            Y_bus[to_line-1][to_line-1] += 1/2*(df_impedances['Full_line_B'][x]*1j)
 
-        # Z values for off diagonal elements
-        Z_values[from_line-1][to_line-1] = df_impedances['R'][x] + df_impedances['X'][x]*1j
-        Z_values[to_line-1][from_line-1] = df_impedances['R'][x] + df_impedances['X'][x]*1j
-    # Adding off diagonal elements
-    for i in range(shape):
-        for j in range(shape):
-            if(Z_values[i][j] != 0. +0.j):
-                if(i != j):
-                    Y_bus[i][j] = - 1/Z_values[i][j]
-            else:
-                if(i != j):
-                    Y_bus[i][j] = Z_values[i][j]
-    printing_Y_bus(Y_bus)
+            # Z values for off diagonal elements
+            Z_values[from_line-1][to_line-1] = df_impedances['R'][x] + df_impedances['X'][x]*1j
+            Z_values[to_line-1][from_line-1] = df_impedances['R'][x] + df_impedances['X'][x]*1j
+        # Adding off diagonal elements
+        for i in range(shape):
+            for j in range(shape):
+                if(Z_values[i][j] != 0. +0.j):
+                    if(i != j):
+                        Y_bus[i][j] = - 1/Z_values[i][j]
+                else:
+                    if(i != j):
+                        Y_bus[i][j] = Z_values[i][j]
     
     """
     #Alternating Y_bus due to the phase-shifting Transformer on line 1-4
