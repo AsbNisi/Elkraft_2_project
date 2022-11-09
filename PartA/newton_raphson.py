@@ -4,11 +4,11 @@ import numpy as np
 from NR_functions import Ybus, read_buses, insert_VD_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV
 from NR_network import Network
 
-bus_vec = read_buses('Part1/Busdata.csv')
+bus_vec = read_buses('PartA/Busdata.csv')
 
 power_network = Network(bus_vec)
 
-Ybus = Ybus('Part1/impedances.csv', 5)
+Ybus = Ybus('PartA/impedances.csv', 5)
 convergence = 0.00001
 Q_max = [0.5,5,-1.5,5,5]
 
