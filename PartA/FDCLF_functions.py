@@ -4,15 +4,11 @@ import numpy as np
 import pandas as pd
 import cmath
 
-from NR_functions import read_buses, Ybus, P_Calc, Q_Calc, get_PQ_calc, delta_VD, updateVD, updateVD_vec, updatePQ_vec, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV
-from DCLF_functions import Ybus_dclf, printing_Y_bus, iterate_dclf
-from NR_network import Network, Buses, PQ, VD
-
+from NR_functions import read_buses, P_Updated, Q_Updated
 
 def Ybus_fdclf(file, shape, bus_file, power_network, Ybus):
 
     bus_vec = read_buses(bus_file)
-
     
     b_dash = Ybus.copy()
     
@@ -23,9 +19,7 @@ def Ybus_fdclf(file, shape, bus_file, power_network, Ybus):
     for x in range(len(bus_vec)):
         if(bus_vec[x].bus_type == 0):
             b_dash = np.delete(b_dash, x, 0)
-            b_dash = np.delete(b_dash, x, 1)
-    
-    #b_dash = b_dash*-(1.j)    
+            b_dash = np.delete(b_dash, x, 1) 
     
     b_double_dash = Ybus.copy()
     for i in range(shape):
@@ -38,8 +32,6 @@ def Ybus_fdclf(file, shape, bus_file, power_network, Ybus):
             b_double_dash = np.delete(b_double_dash, x-i, 0)
             b_double_dash = np.delete(b_double_dash, x-i, 1)
             i += 1
-    
-    #b_double_dash = b_double_dash*-(1.j) 
 
     print('B_dash')
     print(b_dash)
