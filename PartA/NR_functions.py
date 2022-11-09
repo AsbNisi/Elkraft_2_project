@@ -196,24 +196,16 @@ def updateVD_vec(VD_vec, delta_vd, bus_type_init, bus_type, delta, V):
             c += 1
         if (bus_type_init[x] != bus_type[x]):
             delta_vd.insert(c-1, 0)
-    print('VD_vec')
-    print(VD_vec)
-    print('delta_vd')
-    print(delta_vd)
     VD_vec_updated = np.array(VD_vec) + np.array(delta_vd)
     return VD_vec_updated
 
 
 #Splits the updated values of V and delta in two separate vectors  
 def updateVD(VD_vec_current, delta, V, bus_type_init, bus_type):
+    
     delta_current = delta.copy()
     VD_vec_current = np.array(VD_vec_current).tolist()
     V_current = V.copy()
-
-    print('V_current')
-    print(V_current)
-    
-
     c = 0
     for x in range(len(delta_current)):
         if (np.isnan(delta_current[x])):
@@ -223,20 +215,16 @@ def updateVD(VD_vec_current, delta, V, bus_type_init, bus_type):
     for x in range(len(V_current)):
 
         if (bus_type_init[x] != bus_type[x]):
-            
+
             #V_current[x] = VD_vec_current[c]   # test
             c +=1
-            V_current[x] = 1  #Original
-            
+            V_current[x] = 1  #Original            
             #Per nå hardkodet. Fiks hvis tid
-            #VD_vec_current.insert(c,1)
-            #VD_vec_current[c] = 1
-            
 
         elif (np.isnan(V_current[x])): 
             V_current[x] = VD_vec_current[c]
             c += 1     
-    
+
     return delta_current, V_current
 
 
@@ -271,8 +259,6 @@ def Q_max_violation(Q_updated, Q_max, bus_num, V, power_network):
     Buses = power_network.buses
     #Q_updated = [0.75, -2.37, 1.07, 2.06, -0.43]
 
-    print('Q_updated')
-    print(Q_updated)
 
 
     for i in range (len(Q_max)):
@@ -329,10 +315,11 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, del
     #print(VD_vec_current)
     #VD_vec_current = insert_VD_vec(delta, delta_updated, V, V_updated, VD_vec_current)
     #print(VD_vec_current)
-    
+
     #7 Updates V_values and delta_values in separate vectores tougether with given values.  
     delta_updated, V_updated = updateVD(VD_vec_current,delta, V , bus_type_init, bus_type_init)
-    
+
+
     #8 New P and Q vectors without nan.
     P_updated = P_Updated(V_updated, Ybus, bus_num_init, delta_updated)     #Returns P vector updated with calculated values for unknown P's instead of nan.
     Q_updated = Q_Updated(V_updated, Ybus, bus_num_init, delta_updated)     #Returns Q vector updated with calculated values for unknown Q's instead of nan.
@@ -340,20 +327,24 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, del
     #8 Checking Q_max 
     bus_type = bus_type_init
     
-    if(Q_violated(Q_max, Q_updated)):
+    if(Q_violated(Q_max, Q_updated, bus_type)):
         Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
         bus_type = power_network.get_bus_type_vec()
         VD_vec, VD_jacobian = power_network.get_VD_jacobian()
         PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
-        VD_vec_current = updateVD_vec(VD_vec, delta_vd, bus_type_init, bus_type, delta, V)
-        delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
-        print("Q_calc")
-        print(Q_calc)
-        Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
-        print("Q_calc")
-        print(Q_calc)
+        
+        
+        VD_vec_current = VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V)
+        
+        
+        V  = power_network.get_V_vec()
+        VD_vec_current = updateVD_vec(VD_vec_current, delta_vd, bus_type_init, bus_type, delta, V)
 
-    return delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type
+
+        delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
+        Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
+
+    return delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V 
 
 
 
@@ -371,9 +362,9 @@ def insert_VD_vec(delta, delta_updated, V, V_updated, VD_vec):
     return VD_vec
 
 
-def Q_violated(Q_max, Q_Calc):
+def Q_violated(Q_max, Q_Calc, bustype):
     for x in range(len(Q_max)):
-        if (abs(Q_Calc[x]) > abs(Q_max[x])):
+        if (abs(Q_Calc[x]) > abs(Q_max[x]) and bustype[x] == 1):
             return True
     return False
         
@@ -383,3 +374,20 @@ def Q_calc_violated(bus_type_init, bus_type, Q_max, Q_calc):
         if (bus_type_init[x] != bus_type[x]):
             Q_calc[x] = Q_max[x]
     return Q_calc
+
+
+def VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V):
+    i = 0
+    j = 0
+    for x in range(len(VD_vec)):
+        if (VD_vec[x]== 0):
+            VD_vec[x] = VD_vec_current[x]
+        else:
+            if(bus_type[j] != bus_type_init[j]):
+                VD_vec[x] = V[i]
+                i += 1
+                j += 1
+            else:
+                VD_vec[x] = VD_vec_current[x-i]
+                j += 1
+    return VD_vec
