@@ -36,4 +36,4 @@ def main(method):
         P_injections, delta_vec = DCPF(power_network)
     
 
-main("FDCLF")
+main("DCPF")

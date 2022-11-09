@@ -4,7 +4,7 @@ from DCLF.DCLF_functions import Ybus_dclf
 from Newton_raphson.NR_network import Network
 from FDCLF.FDCLF_functions import Ybus_fdclf
 import timeit
-
+power_network = Network(read_buses('PartA/Busdata.csv'))
 Ybus = Ybus('PartA/impedances.csv', 5)
 
 # Attaining the DCPF Ybus for a given power network
