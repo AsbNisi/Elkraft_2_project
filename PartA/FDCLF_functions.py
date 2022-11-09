@@ -129,7 +129,7 @@ def iterate_fdclf_1(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_v
 
 
 
-def iterate_fdclf_2(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q):
+def iterate_fdclf_2(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q, Q_max, power_network):
     
     #1 Get delta_P
     P_updated = P_Updated(V, Ybus, bus_num_init, delta)
@@ -209,7 +209,36 @@ def iterate_fdclf_2(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_v
             V_vec_2_updated[x-j] = V[x]
         else:
             j += 1
-    return V, delta_updated, delta_P, delta_Delta, p_updated_return, Q_updated_return, V_vec_1_updated, V_vec_2_updated
+    
+    bus_type = bus_type_vec
+    if(Q_violated(Q_max, Q_updated_return, bus_type)):
+        Q_updated, power_network = Q_max_violation(Q_updated_return, Q_max, bus_num_init, V, power_network)
+        bus_type = power_network.get_bus_type_vec()
+        V_vec_1, V_vec_2 = power_network.get_V_vec_FD()
+        Q_vec_FD = power_network.get_Q_vec_FD()
+        P_vec_FD = power_network.get_P_vec_FD()
+        print("V_vec")
+        print(V_vec_1)
+        print(V_vec_2)
+        
+        #VD_vec_current = VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V)
+        
+        
+        V  = power_network.get_V_vec()
+        #VD_vec_current = updateVD_vec(VD_vec_current, delta_vd, bus_type_init, bus_type, delta, V)
+
+
+        #delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
+        #Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
+        
+    return V, delta_updated, delta_P, delta_Delta, p_updated_return, Q_updated_return, V_vec_1_updated, V_vec_2_updated, power_network
 
     
+
+
+def Q_violated(Q_max, Q_Calc, bustype):
+    for x in range(len(Q_max)):
+        if (abs(Q_Calc[x]) > abs(Q_max[x]) and bustype[x] == 1):
+            return True
+    return False
 

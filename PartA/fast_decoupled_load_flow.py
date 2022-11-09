@@ -29,7 +29,6 @@ def FDCLF(Ybus, power_network, convergence, Q_max):
     delta = np.zeros(len(bus_vec))
     P = power_network.get_P_vec()
     Q = power_network.get_Q_vec()
-
     print(Ybus)
 
     delta_Delta = [1]
@@ -47,7 +46,7 @@ def FDCLF(Ybus, power_network, convergence, Q_max):
             print('P')
             print(P)
             print('.........')
-            V_updated, delta_updated, delta_P, delta_Delta, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated = iterate_fdclf_2(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec_init, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q)
+            V_updated, delta_updated, delta_P, delta_Delta, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated, power_network = iterate_fdclf_2(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec_init, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q, Q_max, power_network)
                                                                              
             i += 1
             #printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_vec)
@@ -56,7 +55,7 @@ def FDCLF(Ybus, power_network, convergence, Q_max):
             break
         else:
             print("Iteration", i+1, ": \n")
-            V_updated, delta_updated, delta_P, delta_Delta, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated = iterate_fdclf_2(num_buses, bus_num_init, V_updated, V_vec_1_updated, V_vec_2_updated, delta_updated, delta_updated, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q)
+            V_updated, delta_updated, delta_P, delta_Delta, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated, power_network = iterate_fdclf_2(num_buses, bus_num_init, V_updated, V_vec_1_updated, V_vec_2_updated, delta_updated, delta_updated, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q, Q_max, power_network)
             #printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_vec)
             
             print('V_updated')
