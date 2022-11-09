@@ -336,7 +336,9 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, del
     #8 New P and Q vectors without nan.
     P_updated = P_Updated(V_updated, Ybus, bus_num_init, delta_updated)     #Returns P vector updated with calculated values for unknown P's instead of nan.
     Q_updated = Q_Updated(V_updated, Ybus, bus_num_init, delta_updated)     #Returns Q vector updated with calculated values for unknown Q's instead of nan.
-    
+    print("P and Q updated")
+    print(P_updated)
+    print(Q_updated)
     #8 Checking Q_max 
     bus_type = bus_type_init
     
@@ -354,7 +356,7 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, del
     #    print("Q_calc")
     #    print(Q_calc)
 
-    return delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type
+    return delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd
 
 
 
