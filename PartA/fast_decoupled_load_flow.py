@@ -7,9 +7,9 @@ from NR_functions import read_buses, Ybus
 from NR_network import Network
 
 
-bus_vec = read_buses('Part1/Busdata.csv')
+bus_vec = read_buses('PartA/Busdata.csv')
 power_network = Network(bus_vec)
-Ybus = Ybus('Part1/impedances.csv', 5)
+Ybus = Ybus('PartA/impedances.csv', 5)
 
 convergence = 0.00001
 Q_max = [0.5, 5, 1.5,5,5]
@@ -19,14 +19,14 @@ def FDCLF(Ybus, power_network, convergence, Q_max):
     V_vec_1, V_vec_2 = power_network.get_V_vec_FD()
     Q_vec_FD = power_network.get_Q_vec_FD()
     P_vec_FD = power_network.get_P_vec_FD()
-    b_dash, b_double_dash = Ybus_fdclf('Part1/impedances.csv', 5, 'Part1/Busdata.csv', power_network, Ybus)
+    b_dash, b_double_dash = Ybus_fdclf('PartA/impedances.csv', 5, 'PartA/Busdata.csv', power_network, Ybus)
     bus_num_init = power_network.get_bus_num_vec()
     num_buses = len(bus_num_init)
     delta_vec_init = power_network.get_delta_vec_FD()
     bus_type_vec = power_network.get_bus_type_vec()
     V = power_network.get_V_calc()
     delta = power_network.get_delta_vec()
-    delta = [0,0,0,0,0]
+    delta = np.zeros(len(bus_vec))
     P = power_network.get_P_vec()
     Q = power_network.get_Q_vec()
 
