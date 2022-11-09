@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import cmath
 
-from NR_functions import read_buses, printing_jacobian, P_Calc, Q_Calc, get_PQ_calc, delta_VD, updateVD, updateVD_vec, updatePQ_vec, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV
+from NR_functions import Q_violated, printing_jacobian, P_Calc, Q_Calc, get_PQ_calc, delta_VD, updateVD, updateVD_vec, updatePQ_vec, P_Updated, Q_Updated, Q_max_violation, VD_vec_Qmax, Q_calc_violated
 
 
 def Ybus_dclf(file, shape):
@@ -93,7 +93,7 @@ def make_jacobian_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, Yb
     return j
 
 
-
+"""
 def iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current, power_network, bus_type_init, bus_type):
     #1
     print("VD_vec")
@@ -140,5 +140,65 @@ def iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V,
     PQ_vec_updated = updatePQ_vec(PQ_vec, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init)
 
     return PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd
+"""
 
+
+def iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current, power_network, bus_type_init, Q_max):
+     
+    #1 Calculates new values for P and Q separately
+    P_calc = P_Calc(V_vec, Ybus, bus_num_init, delta_vec, P_init)
+    Q_calc = Q_Calc(V_vec, Ybus, bus_num_init, delta_vec, Q_init)
+    
+    #2 Updates RHS of inverted-jacobi-equation 
+    PQ_calc_updated = get_PQ_calc(P_calc, Q_calc) 
+
+    #3 Creating new jacobian
+    j = make_jacobian_dclf(VD_jacobian, PQ_jacobian, PQ_calc_updated, num_buses, V_vec, delta_vec, Ybus)
+    
+    #4 Inverting jacobian 
+    j_inv = np.linalg.inv(j)
+
+    #5 Updates LHS of  inverted-jacobi-equation
+    delta_vd = delta_VD(PQ_vec, PQ_calc_updated, j_inv)
+    
+    #6 Updates values for V and delta
+    VD_vec_current = updateVD_vec(VD_vec_current, delta_vd, bus_type_init, bus_type_init, delta, V)
+    
+    #print('VD_vec_current')
+    #print(VD_vec_current)
+    #VD_vec_current = insert_VD_vec(delta, delta_updated, V, V_updated, VD_vec_current)
+    #print(VD_vec_current)
+
+    #7 Updates V_values and delta_values in separate vectores tougether with given values.  
+    delta_updated, V_updated = updateVD(VD_vec_current,delta, V , bus_type_init, bus_type_init)
+
+
+    #8 New P and Q vectors without nan.
+    P_updated = P_Updated(V_updated, Ybus, bus_num_init, delta_updated)     #Returns P vector updated with calculated values for unknown P's instead of nan.
+    Q_updated = Q_Updated(V_updated, Ybus, bus_num_init, delta_updated)     #Returns Q vector updated with calculated values for unknown Q's instead of nan.
+    
+    #8 Checking Q_max 
+    bus_type = bus_type_init
+    
+    """
+    if(Q_violated(Q_max, Q_updated, bus_type)):
+        Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
+        bus_type = power_network.get_bus_type_vec()
+        VD_vec, VD_jacobian = power_network.get_VD_jacobian()
+        PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
+        
+        
+        VD_vec_current = VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V)
+        
+        
+        V  = power_network.get_V_vec()
+        VD_vec_current = updateVD_vec(VD_vec_current, delta_vd, bus_type_init, bus_type, delta, V)
+
+
+        delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
+        Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
+    """
+    
+
+    return delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V 
 
