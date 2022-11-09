@@ -180,7 +180,6 @@ def iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, d
     #8 Checking Q_max 
     bus_type = bus_type_init
     
-    """
     if(Q_violated(Q_max, Q_updated, bus_type)):
         Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
         bus_type = power_network.get_bus_type_vec()
@@ -197,7 +196,7 @@ def iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, d
 
         delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
         Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
-    """
+    
     
 
     return delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V 
