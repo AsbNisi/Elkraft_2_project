@@ -209,7 +209,7 @@ def iterate_fdclf_2(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_v
             V_vec_2_updated[x-j] = V[x]
         else:
             j += 1
-    
+    """
     bus_type = bus_type_vec
     if(Q_violated(Q_max, Q_updated_return, bus_type)):
         Q_updated, power_network = Q_max_violation(Q_updated_return, Q_max, bus_num_init, V, power_network)
@@ -230,9 +230,9 @@ def iterate_fdclf_2(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_v
 
         #delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
         #Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
-        
+    """ 
     return V, delta_updated, delta_P, delta_Delta, p_updated_return, Q_updated_return, V_vec_1_updated, V_vec_2_updated, power_network
-
+    
     
 
 
