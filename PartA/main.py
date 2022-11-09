@@ -2,6 +2,8 @@ from newton_raphson import NR, power_network, Ybus, convergence, Q_max
 from decoupled_load_flow import DCLF, power_network, Ybus_dclf, convergence, Q_max
 from fast_decoupled_load_flow import FDCLF
 from DCPF import DCPF
+
+
 #-------------------------------------------------------------------------
 # Instructions
 # Choose the method you want to use to solve the load flow problem
@@ -13,11 +15,7 @@ from DCPF import DCPF
 # d) "DCLF_Q_max" - Decoupled load flow with Q_max limits included
 # e) FDCLF - Fast decoupled load flow
 # f) DCPF - DC power flow
-# g)
-# h) 
-
 #-------------------------------------------------------------------------
-
 
 def main(method):
     if (method == "NR"):
@@ -38,4 +36,4 @@ def main(method):
         P_injections, delta_vec = DCPF(power_network)
     
 
-main("DCPF")
+main("NR_Q_max")

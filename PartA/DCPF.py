@@ -1,16 +1,18 @@
 import numpy as np
-from NR_functions import read_buses, P_Calc
+from NR_functions import read_buses, P_Calc, Ybus
 from DCLF_functions import Ybus_dclf
 from NR_network import Network
 from FDCLF_functions import Ybus_fdclf
 import timeit
+
+Ybus = Ybus('PartA/impedances.csv', 5)
 
 # Attaining the DCPF Ybus for a given power network
 def Ybus_DCPF(power_network):
     BusNum =len(power_network.buses)
     
     # B' matrix from FDLF can be multiplied by -1 to attain DCPF Ybus
-    b_dash = Ybus_fdclf('PartA/impedances.csv', BusNum, 'PartA/Busdata.csv', power_network)[0]
+    b_dash = Ybus_fdclf('PartA/impedances.csv', BusNum, 'PartA/Busdata.csv', power_network, Ybus)[0]
     Y_dcpf = np.real(b_dash.copy() * -1)
     return Y_dcpf
 
@@ -47,7 +49,7 @@ def DCPF(power_network):
 start_time = timeit.default_timer()
 
 power_network = Network(read_buses('PartA/Busdata.csv'))
-P_injections, phase_angles = DCPF(power_network)
+#P_injections, phase_angles = DCPF(power_network)
 
 runtime = timeit.default_timer() - start_time
 print(f'Runtime: {runtime}')  
