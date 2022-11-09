@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import cmath
 
-from NR_functions import read_buses, P_Updated, Q_Updated, printing_buses
+from Newton_raphson.NR_functions import read_buses, P_Updated, Q_Updated, printing_buses
 from DCLF_functions import Ybus_dclf, iterate_dclf
-from NR_network import Network
+from Newton_raphson.NR_network import Network
 
 
 bus_vec = read_buses('PartA/Busdata.csv')

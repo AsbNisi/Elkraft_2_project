@@ -1,6 +1,6 @@
 import numpy as np
-from NR_functions import Ybus, read_buses, insert_VD_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV
-from NR_network import Network
+from Newton_raphson.NR_functions import Ybus, read_buses, insert_VD_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV
+from Newton_raphson.NR_network import Network
 
 bus_vec = read_buses('PartA/Busdata.csv')
 

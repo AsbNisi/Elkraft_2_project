@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import cmath
 
-from NR_functions import read_buses, P_Updated, Q_Updated
+from Newton_raphson.NR_functions import read_buses, P_Updated, Q_Updated
 
 def Ybus_fdclf(file, shape, bus_file, power_network, Ybus):
 

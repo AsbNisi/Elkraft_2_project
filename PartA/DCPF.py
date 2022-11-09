@@ -1,7 +1,7 @@
 import numpy as np
-from NR_functions import read_buses, P_Calc, Ybus
+from Newton_raphson.NR_functions import read_buses, P_Calc, Ybus
 from DCLF_functions import Ybus_dclf
-from NR_network import Network
+from Newton_raphson.NR_network import Network
 from FDCLF_functions import Ybus_fdclf
 import timeit
 

@@ -3,7 +3,7 @@ from logging import error
 import numpy as np
 import pandas as pd
 import cmath
-from NR_network import Network, Buses
+from Newton_raphson.NR_network import Network, Buses
 from pandas import *
 
 #Better output Y_bus

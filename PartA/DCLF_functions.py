@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import cmath
 
-from NR_functions import Q_violated, printing_jacobian, P_Calc, Q_Calc, get_PQ_calc, delta_VD, updateVD, updateVD_vec, updatePQ_vec, P_Updated, Q_Updated, Q_max_violation, VD_vec_Qmax, Q_calc_violated
+from Newton_raphson.NR_functions import Q_violated, printing_jacobian, P_Calc, Q_Calc, get_PQ_calc, delta_VD, updateVD, updateVD_vec, updatePQ_vec, P_Updated, Q_Updated, Q_max_violation, VD_vec_Qmax, Q_calc_violated
 
 
 def Ybus_dclf(file, shape):
@@ -91,56 +91,6 @@ def make_jacobian_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, Yb
                     j[x,y] += 0
     printing_jacobian(j)
     return j
-
-
-"""
-def iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, PQ_vec_updated, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current, power_network, bus_type_init, bus_type):
-    #1
-    print("VD_vec")
-    print(VD_vec_current)
-    print("delta")
-    print(delta)
-    print("V")
-    print(V)
-    delta_updated, V_updated = updateVD_vec(VD_vec_current, delta, V, bus_type_init, bus_type)
-    #print("delta_U")
-    #print(delta_updated)
-    #print("V_U")
-    #print(V_updated)
-    #2
-    P_calc = P_Calc(V_updated, Ybus, bus_num_init, delta_updated, P_init)
-    Q_calc = Q_Calc(V_updated, Ybus, bus_num_init, delta_updated, Q_init)
-    
-    #3
-    PQ_calc_updated = get_PQ_calc(P_calc, Q_calc) 
-
-    #4
-    j = make_jacobian_dclf(VD_jacobian, PQ_jacobian, PQ_calc_updated, num_buses, V_updated, delta_updated, Ybus)
-    
-    #5
-    j_inv = np.linalg.inv(j)
-
-    #6
-    delta_vd = delta_VD(PQ_vec, PQ_calc_updated, j_inv)
-    
-    #7
-    print("Vd_vec")
-    print(VD_vec_current)
-    print("delta_vd")
-    print(delta_vd)
-    VD_vec_current = updateVD(VD_vec_current, delta_vd, bus_type_init, bus_type, delta, V)
-    
-
-    #8
-    delta_updated, V_updated = updateVD_vec(VD_vec_current,delta,V, bus_type_init, bus_type)
-    #print(delta_updated)
-    #print(V_updated)
-
-    #9
-    PQ_vec_updated = updatePQ_vec(PQ_vec, V_updated, delta_updated, Ybus, bus_num_init, P_init, Q_init)
-
-    return PQ_vec_updated, delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, delta_vd
-"""
 
 
 def iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current, power_network, bus_type_init, Q_max, Q_limit):
