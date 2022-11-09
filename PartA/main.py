@@ -1,6 +1,6 @@
 from Newton_raphson.newton_raphson import NR, power_network, Ybus, convergence, Q_max
-from decoupled_load_flow import DCLF, power_network, Ybus_dclf, convergence, Q_max
-from fast_decoupled_load_flow import FDCLF
+from DCLF.decoupled_load_flow import DCLF, power_network, Ybus_dclf, convergence, Q_max
+from FDCLF.fast_decoupled_load_flow import FDCLF
 from DCPF import DCPF
 
 
@@ -36,4 +36,4 @@ def main(method):
         P_injections, delta_vec = DCPF(power_network)
     
 
-main("NR")
+main("DCPF")

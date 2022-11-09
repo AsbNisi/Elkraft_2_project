@@ -3,7 +3,7 @@ import pandas as pd
 import cmath
 
 from Newton_raphson.NR_functions import read_buses, P_Updated, Q_Updated, printing_buses
-from DCLF_functions import Ybus_dclf, iterate_dclf
+from DCLF.DCLF_functions import Ybus_dclf, iterate_dclf
 from Newton_raphson.NR_network import Network
 
 

@@ -1,8 +1,8 @@
 import numpy as np
 from Newton_raphson.NR_functions import read_buses, P_Calc, Ybus
-from DCLF_functions import Ybus_dclf
+from DCLF.DCLF_functions import Ybus_dclf
 from Newton_raphson.NR_network import Network
-from FDCLF_functions import Ybus_fdclf
+from FDCLF.FDCLF_functions import Ybus_fdclf
 import timeit
 
 Ybus = Ybus('PartA/impedances.csv', 5)

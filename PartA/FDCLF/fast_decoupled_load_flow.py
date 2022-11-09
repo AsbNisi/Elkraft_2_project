@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import cmath
 
-from FDCLF_functions import Ybus_fdclf, iterate_fdclf_1, iterate_fdclf_2
+from FDCLF.FDCLF_functions import Ybus_fdclf, iterate_fdclf_1, iterate_fdclf_2
 from Newton_raphson.NR_functions import read_buses, Ybus
 from Newton_raphson.NR_network import Network
 
@@ -73,6 +73,6 @@ def FDCLF(Ybus, power_network, convergence, Q_max):
             i += 1
     return P_updated, Q_updated
 
-P, Q = FDCLF(Ybus, power_network, convergence, Q_max)
+
 
 
