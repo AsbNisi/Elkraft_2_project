@@ -29,6 +29,7 @@ def FDCLF(Ybus, power_network, convergence, Q_max):
     delta = np.zeros(len(bus_vec))
     P = power_network.get_P_vec()
     Q = power_network.get_Q_vec()
+    printing_Y_bus(Ybus)
     printing_B_dash(b_dash)
     printing_B_double_dash(b_double_dash)
 

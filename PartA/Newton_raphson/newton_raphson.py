@@ -7,7 +7,7 @@ bus_vec = read_buses('PartA/Busdata.csv')
 power_network = Network(bus_vec)
 
 Ybus = Ybus('PartA/impedances.csv', 5)
-printing_Y_bus(Ybus)
+
 convergence = 0.00001
 Q_max = [0.5,5,-1.5,5,5]
 
@@ -29,6 +29,7 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit):
     
     delta_vd = [1] * len(VD_vec) #Initial state of delta_vd. To avoid convergens in first iteration. 
     i= 0
+    printing_Y_bus(Ybus)
     while(abs(max(np.real(delta_vd))) > convergence):
         if (i==0):  #First iteration
             print("Iteration", i+1, ": \n")
@@ -42,6 +43,7 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit):
             delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit)            
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
             i += 1
+    
     return P_updated, Q_updated 
       
 

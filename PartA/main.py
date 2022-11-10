@@ -17,7 +17,14 @@ from DCPF import DCPF
 # f) DCPF - DC power flow
 #-------------------------------------------------------------------------
 
-def main(method):
+def main():
+    method = input("""Which method do you want to run? \n
+          If Newton-Raphson write 'NR', with reactive limits write 'NR_Q_max',\n
+          If Decoupled method write 'DCLF', with reactive limits write 'DCLF_Q_max',\n
+          If Fast Decoupled write 'FDCLF',
+          If DC power flow write 'DCPF'\n""")
+          
+    
     if (method == "NR"):
         Q_limit = False
         P_updated, Q_updated = NR(Ybus, power_network, convergence, Q_max, Q_limit)
@@ -36,4 +43,4 @@ def main(method):
         P_injections, delta_vec = DCPF(power_network)
     
 
-main("FDCLF")
+main()
