@@ -1,5 +1,5 @@
 import numpy as np
-from Newton_raphson.NR_functions import Ybus, read_buses, insert_VD_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV, printing_Y_bus
+from Newton_raphson.NR_functions import Ybus, read_buses, insert_VD_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV, printing_Y_bus, printing_lines
 from Newton_raphson.NR_network import Network
 
 bus_vec = read_buses('PartA/Busdata.csv')
@@ -44,6 +44,7 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit):
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
             i += 1
     
+    printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus)
     return P_updated, Q_updated 
       
 

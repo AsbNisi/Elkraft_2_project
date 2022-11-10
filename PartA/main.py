@@ -21,34 +21,42 @@ from Task4.Task4_FDCLF import FDCLF_trans, power_network_trans, convergence, Q_m
 
 def main():
     method = input("""Which method do you want to run? \n
-          If Newton-Raphson write 'NR', with reactive limits write 'NR_Q_max',\n
-          If Decoupled method write 'DCLF', with reactive limits write 'DCLF_Q_max',\n
+          If Newton-Raphson write 'NR',\n
+          If Decoupled method write 'DCLF',\n
           If Fast Decoupled write 'FDCLF',
           If DC power flow write 'DCPF'\n""")
     
+    reactive_limits = input("Do you want to run the Load Flow Analysis with reactive power limits: y/n \n")
+    
     print("Chosen method: ", method, "\n\n")
     
-    if (method == "NR"):
+    if (method == "NR" and reactive_limits == "n"):
         Q_limit = False
         P_updated, Q_updated = NR(Ybus, power_network, convergence, Q_max, Q_limit)
-    if (method == "NR_Q_max"):
+    if (method == "NR" and reactive_limits == "y"):
         Q_limit = True
         P_updated, Q_updated = NR(Ybus, power_network, convergence, Q_max, Q_limit)
-    if (method == 'DCLF'):
+    if (method == 'DCLF' and reactive_limits == "n"):
         Q_limit = False
         P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
-    if (method == 'DCLF_Q_max'):
+    if (method == 'DCLF_Q_max' and reactive_limits == "y"):
         Q_limit = True
         P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
     if (method == 'FDCLF'):
         P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max)
     if (method == 'DCPF'):
         P_injections, delta_vec = DCPF(power_network)
-    if (method == 'NR_trans'):
+    if (method == 'NR_trans' and reactive_limits == "n"):
         Q_limit = False
         P_updated, Q_updated = NR_trans(Ybus_trans, power_network_trans, convergence, Q_max, Q_limit)
-    if (method == 'FDCLF_trans'):
+    if (method == 'NR_trans' and reactive_limits == "y"):
+        Q_limit = True
+        P_updated, Q_updated = NR_trans(Ybus_trans, power_network_trans, convergence, Q_max, Q_limit)
+    if (method == 'FDCLF_trans' and reactive_limits == "n"):
         Q_limit = False
+        P_updated, Q_updated = FDCLF_trans(Ybus_trans, power_network_trans, convergence, Q_max, Q_limit)
+    if (method == 'FDCLF_trans' and reactive_limits == "y"):
+        Q_limit = True
         P_updated, Q_updated = FDCLF_trans(Ybus_trans, power_network_trans, convergence, Q_max, Q_limit)
     
 

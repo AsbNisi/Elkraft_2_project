@@ -394,3 +394,35 @@ def VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V):
                 VD_vec[x] = VD_vec_current[x-i]
                 j += 1
     return VD_vec
+
+
+
+#Printing load flow in lines
+def printing_lines(bus_vec, file, V, Ybus):
+    
+    #Calculate complex power flow in lines
+   
+    S_base = 100 #MW
+    
+    S_ik = np.zeros((len(bus_vec), len(bus_vec)), dtype=complex)
+    for i in range(len(bus_vec)):
+        for k in range(len(bus_vec)):
+            S_ik[i][k] = V[i]*np.conjugate(-Ybus[i][k]*(V[i]-V[k]))*S_base
+            
+
+    print("Updated line info:", '\n')
+    df_lines = pd.read_csv(file, sep=";")
+    d = {}
+    for i in range (len(bus_vec)):
+        from_line = df_lines["From_line"][i]
+        to_line = df_lines["To_line"][i]
+
+        line = str(from_line) + " - " + str(to_line)
+        
+        d[line] = S_ik[from_line-1,to_line-1], np.real(S_ik[from_line-1,to_line-1]), np.imag(S_ik[from_line-1,to_line-1]), np.real(S_ik[from_line-1,to_line-1]+S_ik[to_line-1,from_line-1]), np.imag(S_ik[from_line-1,to_line-1]+S_ik[to_line-1,from_line-1]) 
+    print ("{:<7} {:<23} {:<12} {:<12} {:<12} {:<12}".format('Line','Complex Power Flow [MVA] ','Active Power Flow [MW] ', 'Reactive Power Flow [MVar] ', "Active Power Loss [MW] ", "Reactive Power Loss [MVar] "))    
+    for k, v in d.items():
+        apparent, active, reactive, ploss, qloss = v
+        print("{:<7} {:<25} {:<23} {:<27} {:<23} {:<19}".format(k, round(apparent,4),round(active,4), round(reactive,4), round(ploss,4), round(qloss,4)))
+    print('\n')
+    return 
