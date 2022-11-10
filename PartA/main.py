@@ -23,7 +23,8 @@ def main():
           If Decoupled method write 'DCLF', with reactive limits write 'DCLF_Q_max',\n
           If Fast Decoupled write 'FDCLF',
           If DC power flow write 'DCPF'\n""")
-          
+    
+    print("Chosen method: ", method, "\n\n")
     
     if (method == "NR"):
         Q_limit = False
