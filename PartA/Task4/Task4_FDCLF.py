@@ -2,14 +2,15 @@ import numpy as np
 import pandas as pd
 import cmath
 
-from Task4.Task4_FDCLF_func import Ybus_fdclf, iterate_fdclf_1, iterate_fdclf_2, printing_B_dash, printing_B_double_dash
-from Task4.Task4_NR_func import read_buses, Ybus, printing_buses, printing_Y_bus
-from Newton_raphson.NR_network import Network
+from FDCLF.FDCLF_functions import Ybus_fdclf, iterate_fdclf_1, iterate_fdclf_2, printing_B_dash, printing_B_double_dash
+from Task4.Task4_NR_func import Ybus_trans
+from Task4.Trans_network import Network
+from Newton_raphson.NR_functions import read_buses, printing_buses, printing_Y_bus
 
 
 bus_vec = read_buses('PartA/Task4/BusdataWith7Buses.csv')
-power_network = Network(bus_vec)
-Ybus = Ybus('PartA/Task4/impedancesPart4.csv', len(bus_vec))
+power_network_trans = Network(bus_vec)
+Ybus = Ybus_trans('PartA/Task4/impedancesPart4.csv', len(bus_vec))
 
 convergence = 0.00001
 Q_max = [0.5, 5, 1.5,5,5]
@@ -29,6 +30,7 @@ def FDCLF_trans(Ybus, power_network, convergence, Q_max, Q_limit):
     delta = np.zeros(len(bus_vec))
     P = power_network.get_P_vec()
     Q = power_network.get_Q_vec()
+    
     printing_Y_bus(Ybus)
     printing_B_dash(b_dash)
     printing_B_double_dash(b_double_dash)

@@ -2,8 +2,8 @@ from Newton_raphson.newton_raphson import NR, power_network, Ybus, convergence, 
 from DCLF.decoupled_load_flow import DCLF, power_network, Ybus_dclf, convergence, Q_max
 from FDCLF.fast_decoupled_load_flow import FDCLF
 from DCPF import DCPF
-from Task4.Task4_NR import NR_trans, power_network, Ybus, convergence, Q_max
-from Task4.Task4_FDCLF import FDCLF_trans, power_network, Ybus, convergence, Q_max
+from Task4.Task4_NR import NR_trans, power_network_trans, Ybus_trans, convergence, Q_max
+from Task4.Task4_FDCLF import FDCLF_trans, power_network_trans, convergence, Q_max
 
 
 #-------------------------------------------------------------------------
@@ -46,10 +46,10 @@ def main():
         P_injections, delta_vec = DCPF(power_network)
     if (method == 'NR_trans'):
         Q_limit = False
-        P_updated, Q_updated = NR_trans(Ybus, power_network, convergence, Q_max, Q_limit)
+        P_updated, Q_updated = NR_trans(Ybus_trans, power_network_trans, convergence, Q_max, Q_limit)
     if (method == 'FDCLF_trans'):
         Q_limit = False
-        P_updated, Q_updated = FDCLF_trans(Ybus, power_network, convergence, Q_max, Q_limit)
+        P_updated, Q_updated = FDCLF_trans(Ybus_trans, power_network_trans, convergence, Q_max, Q_limit)
     
 
 main()
