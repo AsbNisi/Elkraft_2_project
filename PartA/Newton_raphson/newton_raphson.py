@@ -1,5 +1,5 @@
 import numpy as np
-from Newton_raphson.NR_functions import Ybus, read_buses, insert_VD_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV
+from Newton_raphson.NR_functions import Ybus, read_buses, insert_VD_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV, printing_Y_bus
 from Newton_raphson.NR_network import Network
 
 bus_vec = read_buses('PartA/Busdata.csv')
@@ -7,6 +7,7 @@ bus_vec = read_buses('PartA/Busdata.csv')
 power_network = Network(bus_vec)
 
 Ybus = Ybus('PartA/impedances.csv', 5)
+printing_Y_bus(Ybus)
 convergence = 0.00001
 Q_max = [0.5,5,-1.5,5,5]
 
@@ -36,8 +37,6 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit):
             i += 1
             
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
-        elif (i==5):
-            break
         else:
             print("Iteration", i+1, ": \n")
             delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit)            

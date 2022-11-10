@@ -30,7 +30,6 @@ def Ybus_dclf(file, shape):
             else:
                 if(i != j):
                     Y_bus[i][j] = Z_values[i][j]
-    printing_Y_bus(Y_bus)
     return Y_bus
 
 
