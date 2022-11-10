@@ -3,46 +3,38 @@ from re import I
 import numpy as np
 import pandas as pd
 import cmath
+from pandas import *
 
 from Newton_raphson.NR_functions import read_buses, P_Updated, Q_Updated, Q_max_violation
 
 def Ybus_fdclf(file, shape, bus_file, power_network, Ybus):
 
     bus_vec = read_buses(bus_file)
-    
-    b_dash = Ybus.copy()
-    
+    #Making B dash matrix
+    b_dash = np.zeros((shape, shape), dtype=float)
     for i in range(shape):
         for j in range(shape):
-            b_dash[i][j] = np.imag(b_dash[i][j])
+            b_dash[i][j] = np.real(np.imag(Ybus[i][j]))
 
     for x in range(len(bus_vec)):
         if(bus_vec[x].bus_type == 0):
             b_dash = np.delete(b_dash, x, 0)
             b_dash = np.delete(b_dash, x, 1) 
     
-    b_double_dash = Ybus.copy()
+    #Making B double dash matrix
+    b_double_dash = np.zeros((shape, shape), dtype=float)
     for i in range(shape):
         for j in range(shape):
-            b_double_dash[i][j] = np.imag(b_double_dash[i][j])
+            b_double_dash[i][j] = np.real(np.imag(Ybus[i][j]))
 
     i = 0
     for x in range(len(bus_vec)):
         if(bus_vec[x].bus_type == 0 or bus_vec[x].bus_type == 1):
             b_double_dash = np.delete(b_double_dash, x-i, 0)
             b_double_dash = np.delete(b_double_dash, x-i, 1)
-            i += 1
-
-    print('B_dash')
-    print(b_dash)
-    print(b_dash[0][0])
-    print('.........')
-    print('B_double_dash')
-    print(b_double_dash)
-    print('.........')
+            i += 1    
 
     return b_dash, b_double_dash
-
 
 def iterate_fdclf_1(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q):
     
@@ -242,3 +234,18 @@ def Q_violated(Q_max, Q_Calc, bustype):
             return True
     return False
 
+#New print-functions
+#Better output B_dash
+def printing_B_dash(B_dash):
+    df = DataFrame(B_dash)
+    df.index = np.arange(1, len(df)+1)
+    df.columns = np.arange(1, len(df)+1)
+    print('B dash: \n', df, '\n')
+    return 
+#Better output B_dobbel_dash
+def printing_B_double_dash(B_double_dash):
+    df = DataFrame(B_double_dash)
+    df.index = np.arange(1, len(df)+1)
+    df.columns = np.arange(1, len(df)+1)
+    print('B double dash: \n', df, '\n')
+    return 

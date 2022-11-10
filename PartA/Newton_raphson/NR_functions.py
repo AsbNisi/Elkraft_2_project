@@ -11,7 +11,7 @@ def printing_Y_bus(Ybus):
     df = DataFrame(Ybus)
     df.index = np.arange(1, len(df)+1)
     df.columns = np.arange(1, len(df)+1)
-    print('Ybus: \n', df, '\n')    #1
+    print('Ybus: \n', df, '\n')
     return 
 #Better output jacobian 
 def printing_jacobian(j):
