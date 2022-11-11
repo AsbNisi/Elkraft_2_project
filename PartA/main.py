@@ -1,7 +1,7 @@
 from Newton_raphson.newton_raphson import NR, power_network, Ybus
 from DCLF.decoupled_load_flow import DCLF, power_network, Ybus_dclf
 from FDCLF.fast_decoupled_load_flow import FDCLF
-from DCPF import DCPF
+from DCPF.DCPF import DCPF_calc, Ybus_DCPF
 
 Ybus_dclf = Ybus_dclf('PartA/impedances.csv', 5)
 convergence = 0.000000001
@@ -63,7 +63,7 @@ def main():
         P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit)
 
     if (method == 'DCPF'):
-        P_injections, delta_vec = DCPF(power_network)
+        P_injections, delta_vec = DCPF_calc(power_network)
     
 
 main()

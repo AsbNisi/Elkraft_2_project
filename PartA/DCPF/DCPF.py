@@ -44,6 +44,11 @@ def DCPF_calc(power_network):
     Ybus_DCLF = Ybus_dclf('PartA/impedances.csv', BusNum)
     P_injections = np.real(P_Calc(V_o, Ybus_DCLF, range(BusNum), delta_vec, P_o))
     
+    print('Power injections')
+    print(P_injections)
+    print('Angles')
+    print(delta_vec)
+
     return P_injections, delta_vec
 
 
