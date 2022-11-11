@@ -2,19 +2,19 @@ import numpy as np
 import pandas as pd
 import cmath
 
-from Newton_raphson.NR_functions import read_buses, P_Updated, Q_Updated, printing_buses, Q_violated, Q_max_violation, VD_vec_Qmax, updateVD_vec, updateVD, Q_calc_violated
+from Newton_raphson.NR_functions import read_buses, P_Updated, Q_Updated, printing_buses
 from DCLF.DCLF_functions import Ybus_dclf, iterate_dclf
 from Newton_raphson.NR_network import Network
 
 
 bus_vec = read_buses('PartA/Busdata.csv')
 power_network = Network(bus_vec)
-#print(power_network.get_bus(2))
 
 Ybus = Ybus_dclf('PartA/impedances.csv', 5)
 convergence = 0.00001
 Q_max = [0.5, 5, 1.5,5,5]
 
+# Decoupled load flow main function
 def DCLF(Ybus, power_network, convergence, Q_max, Q_limit):
     V_init = power_network.get_V_calc()   #Appends 1 if nan. Otherwise given value 
     delta_init = power_network.get_delta_calc()  #Appends 0 if nan. Otherwise given value 

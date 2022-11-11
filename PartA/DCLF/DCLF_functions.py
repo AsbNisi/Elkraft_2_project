@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import cmath
 
-from Newton_raphson.NR_functions import Q_violated, printing_jacobian, P_Calc, Q_Calc, get_PQ_calc, delta_VD, updateVD, updateVD_vec, updatePQ_vec, P_Updated, Q_Updated, Q_max_violation, VD_vec_Qmax, Q_calc_violated
+from Newton_raphson.NR_functions import Q_violated, printing_jacobian, P_Calc, Q_Calc, get_PQ_calc, delta_VD, updateVD, updateVD_vec, P_Updated, Q_Updated, Q_max_violation, VD_vec_Qmax, Q_calc_violated
 
-
+# Spezialized function for creating Ybus for the DCLF method
 def Ybus_dclf(file, shape):
     df_impedances = pd.read_csv(file, sep=";")
     Z_values = np.zeros((shape,shape), dtype=complex)
@@ -33,7 +33,7 @@ def Ybus_dclf(file, shape):
     return Y_bus
 
 
-
+# Function to print the Y bus
 def printing_Y_bus(Ybus):
     df = pd.DataFrame(Ybus)
     df.index = np.arange(1, len(df)+1)
@@ -42,7 +42,7 @@ def printing_Y_bus(Ybus):
     return 
 
 
-
+# Function creating the jacobian matrix for the DCLF method. Returning the nxn matrix
 def make_jacobian_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, Ybus):
     j = np.zeros((len(PQ_vec),len(PQ_vec)), dtype=complex)
     
@@ -92,6 +92,7 @@ def make_jacobian_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, Yb
     return j
  
 
+# Function with all the steps for one iteration of DCLF. To be used in a loop in the main function 
 def iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current, power_network, bus_type_init, Q_max, Q_limit):
      
     #1 Calculates new values for P and Q separately

@@ -1,7 +1,7 @@
 from Newton_raphson.newton_raphson import NR, power_network, Ybus
 from DCLF.decoupled_load_flow import DCLF, power_network, Ybus_dclf
 from FDCLF.fast_decoupled_load_flow import FDCLF
-from DCPF.DCPF import DCPF_calc, Ybus_DCPF
+from DCPF.DCPF import DCPF_calc
 
 Ybus_dclf = Ybus_dclf('PartA/impedances.csv', 5)
 convergence = 0.000000001
