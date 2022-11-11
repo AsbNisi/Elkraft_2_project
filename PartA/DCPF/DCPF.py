@@ -18,7 +18,7 @@ def Ybus_DCPF(power_network):
 
 
 # Running DCPF study on a given power network
-def DCPF(power_network):
+def DCPF_calc(power_network):
     BusNum =len(power_network.buses)  
     
     # Ybus for DCPF is attained and inversed
@@ -46,10 +46,10 @@ def DCPF(power_network):
     return P_injections, delta_vec
 
 
-#start_time = timeit.default_timer()
+start_time = timeit.default_timer()
 
-#power_network = Network(read_buses('PartA/Busdata.csv'))
-#P_injections, phase_angles = DCPF(power_network)
+power_network = Network(read_buses('PartA/Busdata.csv'))
+P_injections, phase_angles = DCPF_calc(power_network)
 
-#runtime = timeit.default_timer() - start_time
-#print(f'Runtime: {runtime}')  
+runtime = timeit.default_timer() - start_time
+print(f'Runtime: {runtime}')  
