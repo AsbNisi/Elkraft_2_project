@@ -218,8 +218,6 @@ def updateVD(VD_vec_current, delta, V, bus_type_init, bus_type):
     for x in range(len(V_current)):
 
         if (bus_type_init[x] != bus_type[x]):
-
-            #V_current[x] = VD_vec_current[c]   # test
             c +=1
             V_current[x] = 1  #Original            
             #Per nå hardkodet. Fiks hvis tid
@@ -258,12 +256,7 @@ def Q_Updated(V, YBus, BusNum, delta):
 
 #Function to check if Q is violated. Updates power network
 def Q_max_violation(Q_updated, Q_max, bus_num, V, power_network):
-    #V_updated = V.copy()
     Buses = power_network.buses
-    #Q_updated = [0.75, -2.37, 1.07, 2.06, -0.43]
-
-
-
     for i in range (len(Q_max)):
         if Q_max[i] == '':
             continue
@@ -271,27 +264,12 @@ def Q_max_violation(Q_updated, Q_max, bus_num, V, power_network):
             print('Q_max is violated for bus ', bus_num[i+1], 'and needs to be type switched.')
             Buses[i].bus_type = 2
             Q_updated[i] = Q_max[i]
-            #V_updated[i] = np.nan
             Buses[i].Q = Q_max[i]
             Buses[i].V = np.nan  
         else:
-            #print('Bus', bus_num[i+1], 'is within its boundaries.')
             continue
         power_network = Network(Buses)
     return Q_updated, power_network
-
-def PQ_to_PV(bus_type_init, Q_updated, Q_max, V_updated, power_network):
-    Buses = power_network.buses
-    #Q_updated = [0.75, -2.37, 1.07, 2.06, -0.43]
-    for i in range (len(Q_max)):
-        if (bus_type_init[i] != power_network.get_bus_type_vec()[i] and Q_updated[i] < Q_max[i]):
-            Buses[i].bus_type = 1
-            Buses[i].Q = np.nan
-            Buses[i].V = V_updated[i]
-        else:
-            continue
-        power_network = Network(Buses)
-    return power_network
 
 def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current, power_network, bus_type_init, Q_max, Q_limit):
      
@@ -313,11 +291,6 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, del
     
     #6 Updates values for V and delta
     VD_vec_current = updateVD_vec(VD_vec_current, delta_vd, bus_type_init, bus_type_init, delta, V)
-    
-    #print('VD_vec_current')
-    #print(VD_vec_current)
-    #VD_vec_current = insert_VD_vec(delta, delta_updated, V, V_updated, VD_vec_current)
-    #print(VD_vec_current)
 
     #7 Updates V_values and delta_values in separate vectores tougether with given values.  
     delta_updated, V_updated = updateVD(VD_vec_current,delta, V , bus_type_init, bus_type_init)
@@ -350,35 +323,21 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, del
     return delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V 
 
 
-
-
-def insert_VD_vec(delta, delta_updated, V, V_updated, VD_vec):
-    c = 0 
-    for i in range(len(delta)):
-        if(np.isnan(delta[i]) == True):
-            VD_vec[c] = delta_updated[i]
-            c +=1 
-    for j in range(len(V)):
-        if(np.isnan(V[j]) == True):
-            VD_vec[c] = V_updated[j]
-            c+=1
-    return VD_vec
-
-
+#Checking if a Q is violated. 
 def Q_violated(Q_max, Q_Calc, bustype):
     for x in range(len(Q_max)):
         if (abs(Q_Calc[x]) > abs(Q_max[x]) and bustype[x] == 1):
             return True
     return False
         
-
+#Sets the Q of the violated bus to the given max value.  
 def Q_calc_violated(bus_type_init, bus_type, Q_max, Q_calc):
     for x in range(len(bus_type)):
         if (bus_type_init[x] != bus_type[x]):
             Q_calc[x] = Q_max[x]
     return Q_calc
 
-
+#Sets calculated values from last interation into the new VD_vec with new shape.
 def VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V):
     i = 0
     j = 0
@@ -426,3 +385,19 @@ def printing_lines(bus_vec, file, V, Ybus):
         print("{:<7} {:<25} {:<23} {:<27} {:<23} {:<19}".format(k, round(apparent,4),round(active,4), round(reactive,4), round(ploss,4), round(qloss,4)))
     print('\n')
     return 
+
+
+
+
+#Skjønner ikke hvorfor vi må ha denne enda
+def PQ_to_PV(bus_type_init, Q_updated, Q_max, V_updated, power_network):
+    Buses = power_network.buses
+    for i in range (len(Q_max)):
+        if (bus_type_init[i] != power_network.get_bus_type_vec()[i] and Q_updated[i] < Q_max[i]):
+            Buses[i].bus_type = 1
+            Buses[i].Q = np.nan
+            Buses[i].V = V_updated[i]
+        else:
+            continue
+        power_network = Network(Buses)
+    return power_network
