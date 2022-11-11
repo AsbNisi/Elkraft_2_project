@@ -22,14 +22,18 @@ def printing_jacobian(j):
     return 
 #Better output buses
 def printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type):
+    V_base = 132 #kV
+    S_base = 100 #MW
     print("Updated bus values:", '\n')
+    bus_dict = {0: "Slack", 1: "Generator", 2: "Load"}
+    
     d = {}
     for i in range (len(bus_num_init)):
-        d[bus_num_init[i]+1] = bus_type[i], np.real(V_updated[i]), np.real(delta_updated[i]), np.real(P_updated[i]), np.real(Q_updated[i])
-    print ("{:<7} {:<10} {:<9} {:<9} {:<14} {:<10}".format('Bus #',' Bus Type','Voltage','Angle','Active Power','Reactive Power'))    
+        d[bus_num_init[i]+1] = bus_dict.get(bus_type[i]), np.real(V_updated[i]), np.real(V_updated[i])*V_base,np.real(delta_updated[i]), np.real(P_updated[i]), np.real(Q_updated[i]), np.real(P_updated[i])*S_base, np.real(Q_updated[i])*S_base
+    print ("{:<7} {:<11} {:<12} {:<12} {:<12} {:<17} {:<13} {:<17} {:<13}".format('Bus #',' Bus Type','Voltage [pu] ', 'Voltage [kV] ','Angle [rad] ','Active Power [pu] ','Reactive Power [pu] ','Active Power [MW] ','Reactive Power [MVar] '))    
     for k, v in d.items():
-        BusType, voltage, angle, active, reactive = v
-        print("{:<8} {:<9} {:<9} {:<9} {:<14} {:<16}".format(k,BusType, round(voltage,4), round(angle,4), round(active,4), round(reactive,4)))
+        BusType, voltage_pu, voltage_act, angle, active_pu, reactive_pu, active_act, reactive_act = v
+        print("{:<8} {:<10} {:<13} {:<13} {:<12} {:<18} {:<20} {:<18} {:<22}".format(k,BusType, round(voltage_pu,4),round(voltage_act,4), round(angle,4), round(active_pu,4), round(reactive_pu,4), round(active_act,4), round(reactive_act,4)))
     print('\n')
     return 
 
@@ -390,3 +394,35 @@ def VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V):
                 VD_vec[x] = VD_vec_current[x-i]
                 j += 1
     return VD_vec
+
+
+
+#Printing load flow in lines
+def printing_lines(bus_vec, file, V, Ybus):
+    
+    #Calculate complex power flow in lines
+   
+    S_base = 100 #MW
+    
+    S_ik = np.zeros((len(bus_vec), len(bus_vec)), dtype=complex)
+    for i in range(len(bus_vec)):
+        for k in range(len(bus_vec)):
+            S_ik[i][k] = V[i]*np.conjugate(-Ybus[i][k]*(V[i]-V[k]))*S_base
+            
+
+    print("Updated line info:", '\n')
+    df_lines = pd.read_csv(file, sep=";")
+    d = {}
+    for i in range (len(bus_vec)):
+        from_line = df_lines["From_line"][i]
+        to_line = df_lines["To_line"][i]
+
+        line = str(from_line) + " - " + str(to_line)
+        
+        d[line] = S_ik[from_line-1,to_line-1], np.real(S_ik[from_line-1,to_line-1]), np.imag(S_ik[from_line-1,to_line-1]), np.real(S_ik[from_line-1,to_line-1]+S_ik[to_line-1,from_line-1]), np.imag(S_ik[from_line-1,to_line-1]+S_ik[to_line-1,from_line-1]) 
+    print ("{:<7} {:<23} {:<12} {:<12} {:<12} {:<12}".format('Line','Complex Power Flow [MVA] ','Active Power Flow [MW] ', 'Reactive Power Flow [MVar] ', "Active Power Loss [MW] ", "Reactive Power Loss [MVar] "))    
+    for k, v in d.items():
+        apparent, active, reactive, ploss, qloss = v
+        print("{:<7} {:<25} {:<23} {:<27} {:<23} {:<19}".format(k, round(apparent,4),round(active,4), round(reactive,4), round(ploss,4), round(qloss,4)))
+    print('\n')
+    return 

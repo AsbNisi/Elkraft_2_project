@@ -1,7 +1,7 @@
 from Newton_raphson.newton_raphson import NR, power_network, Ybus, convergence, Q_max
 from DCLF.decoupled_load_flow import DCLF, power_network, Ybus_dclf, convergence, Q_max
 from FDCLF.fast_decoupled_load_flow import FDCLF
-from DCPF.DCPF import DCPF_calc, Ybus_DCPF
+from DCPF import DCPF
 
 
 #-------------------------------------------------------------------------
@@ -19,30 +19,31 @@ from DCPF.DCPF import DCPF_calc, Ybus_DCPF
 
 def main():
     method = input("""Which method do you want to run? \n
-          If Newton-Raphson write 'NR', with reactive limits write 'NR_Q_max',\n
-          If Decoupled method write 'DCLF', with reactive limits write 'DCLF_Q_max',\n
+          If Newton-Raphson write 'NR',\n
+          If Decoupled method write 'DCLF',\n
           If Fast Decoupled write 'FDCLF',
           If DC power flow write 'DCPF'\n""")
-          
     
-    if (method == "NR"):
+    reactive_limits = input("Do you want to run the Load Flow Analysis with reactive power limits: y/n \n")
+    
+    print("Chosen method: ", method, "\n\n")
+    
+    if (method == "NR" and reactive_limits == "n"):
         Q_limit = False
         P_updated, Q_updated = NR(Ybus, power_network, convergence, Q_max, Q_limit)
-    if (method == "NR_Q_max"):
+    if (method == "NR" and reactive_limits == "y"):
         Q_limit = True
         P_updated, Q_updated = NR(Ybus, power_network, convergence, Q_max, Q_limit)
-    if (method == 'DCLF'):
+    if (method == 'DCLF' and reactive_limits == "n"):
         Q_limit = False
         P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
-    if (method == 'DCLF_Q_max'):
+    if (method == 'DCLF_Q_max' and reactive_limits == "y"):
         Q_limit = True
         P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
     if (method == 'FDCLF'):
         P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max)
     if (method == 'DCPF'):
-        P_injections, delta_vec = DCPF_calc(power_network)
-        print(P_injections)
-        print(delta_vec)
+        P_injections, delta_vec = DCPF(power_network)
     
 
 main()

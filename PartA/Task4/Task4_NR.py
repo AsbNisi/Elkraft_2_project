@@ -1,17 +1,18 @@
 import numpy as np
-from Newton_raphson.NR_functions import Ybus, read_buses, insert_VD_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV, printing_Y_bus, printing_lines
-from Newton_raphson.NR_network import Network
+from Task4.Task4_NR_func import Ybus_trans
+from Task4.Trans_network import Network
+from Newton_raphson.NR_functions import read_buses, insert_VD_vec, iterate_NR, P_Updated, Q_Updated, Q_max_violation, printing_buses, PQ_to_PV, printing_Y_bus
 
-bus_vec = read_buses('PartA/Busdata.csv')
+bus_vec = read_buses('PartA/Task4/BusdataWith7Buses.csv')
 
-power_network = Network(bus_vec)
+power_network_trans = Network(bus_vec)
 
-Ybus = Ybus('PartA/impedances.csv', 5)
+Ybus_trans = Ybus_trans('PartA/Task4/impedancesPart4.csv', len(bus_vec))
 
 convergence = 0.00001
 Q_max = [0.5,5,-1.5,5,5]
 
-def NR(Ybus, power_network, convergence, Q_max, Q_limit):
+def NR_trans(Ybus, power_network, convergence, Q_max, Q_limit):
     V_init = power_network.get_V_calc()   #Appends 1 if nan. Otherwise given value 
     delta_init = power_network.get_delta_calc()  #Appends 0 if nan. Otherwise given value 
     P_init = power_network.get_P_vec() #Returns P_values. If unknown, returns nan
@@ -30,6 +31,7 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit):
     delta_vd = [1] * len(VD_vec) #Initial state of delta_vd. To avoid convergens in first iteration. 
     i= 0
     printing_Y_bus(Ybus)
+    
     while(abs(max(np.real(delta_vd))) > convergence):
         if (i==0):  #First iteration
             print("Iteration", i+1, ": \n")
@@ -44,7 +46,6 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit):
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
             i += 1
     
-    printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus)
     return P_updated, Q_updated 
       
 
