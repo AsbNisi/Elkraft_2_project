@@ -2,7 +2,7 @@ from Newton_raphson.newton_raphson import NR, power_network, Ybus, convergence, 
 from DCLF.decoupled_load_flow import DCLF, power_network, Ybus_dclf, convergence, Q_max
 from FDCLF.fast_decoupled_load_flow import FDCLF
 from DCPF import DCPF
-
+Ybus_dclf = Ybus_dclf('PartA/impedances.csv', 5)
 
 #-------------------------------------------------------------------------
 # Instructions
@@ -16,6 +16,7 @@ from DCPF import DCPF
 # e) FDCLF - Fast decoupled load flow
 # f) DCPF - DC power flow
 #-------------------------------------------------------------------------
+
 
 def main():
     method = input("""Which method do you want to run? \n
@@ -37,7 +38,7 @@ def main():
     if (method == 'DCLF' and reactive_limits == "n"):
         Q_limit = False
         P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
-    if (method == 'DCLF_Q_max' and reactive_limits == "y"):
+    if (method == 'DCLF' and reactive_limits == "y"):
         Q_limit = True
         P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
     if (method == 'FDCLF'):

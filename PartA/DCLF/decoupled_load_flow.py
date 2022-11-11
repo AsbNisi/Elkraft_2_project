@@ -34,7 +34,7 @@ def DCLF(Ybus, power_network, convergence, Q_max, Q_limit):
     i= 0
     while(abs(max(np.real(delta_vd))) > convergence):
         if (i==0):  #First iteration
-            print("Iteration", i+1, ": \n")
+            print("Iteration", i+1, ": \n") 
             bus_type = power_network.get_bus_type_vec()
             delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec, power_network, bus_type_init, Q_max, Q_limit)
             i += 1
