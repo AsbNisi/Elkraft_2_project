@@ -3,7 +3,7 @@ import pandas as pd
 import cmath
 
 from FDCLF.FDCLF_functions import Ybus_fdclf, iterate_fdclf, printing_B_dash, printing_B_double_dash, Update_V_vec
-from Newton_raphson.NR_functions import read_buses, Ybus, printing_buses, printing_Y_bus, Q_violated, Q_max_violation   
+from Newton_raphson.NR_functions import read_buses, Ybus, printing_buses, printing_Y_bus, Q_violated, Q_max_violation, printing_lines   
 from Newton_raphson.NR_network import Network
 
 
@@ -59,6 +59,8 @@ def FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit):
         V_updated, delta_updated, delta_Delta, delta_V, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated, power_network, bus_type_vec, Q_vec_FD, P_vec_FD = iterate_fdclf(num_buses, bus_num_init, V_updated, V_vec_1_updated, V_vec_2_updated, delta_updated, delta_updated, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, Q_max, power_network, method, Q_limit)
         printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_vec)
     """
+    printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus)
+    
     return P_updated, Q_updated
 
 
