@@ -1,8 +1,11 @@
-from Newton_raphson.newton_raphson import NR, power_network, Ybus, convergence, Q_max
-from DCLF.decoupled_load_flow import DCLF, power_network, Ybus_dclf, convergence, Q_max
+from Newton_raphson.newton_raphson import NR, power_network, Ybus
+from DCLF.decoupled_load_flow import DCLF, power_network, Ybus_dclf
 from FDCLF.fast_decoupled_load_flow import FDCLF
 from DCPF import DCPF
+
 Ybus_dclf = Ybus_dclf('PartA/impedances.csv', 5)
+convergence = 0.00001
+Q_max = [0.5,5,-1.5,5,5]
 
 #-------------------------------------------------------------------------
 # Instructions
