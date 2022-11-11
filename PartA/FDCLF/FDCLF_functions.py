@@ -104,7 +104,7 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
             V_vec_1_updated, V_vec_2_updated = Update_V_vec(bus_type_vec, V_vec_1, V_vec_2, V_updated)
         
      
-    return V_updated, delta_updated, delta_P, delta_Delta, P_updated_return, Q_updated_return, V_vec_1_updated, V_vec_2_updated, power_network, bus_type_vec, Q_vec_FD, P_vec_FD
+    return V_updated, delta_updated, delta_Delta, delta_V, P_updated_return, Q_updated_return, V_vec_1_updated, V_vec_2_updated, power_network, bus_type_vec, Q_vec_FD, P_vec_FD
     
     
 

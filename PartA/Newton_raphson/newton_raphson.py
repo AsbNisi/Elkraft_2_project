@@ -1,6 +1,6 @@
 import numpy as np
 
-from Newton_raphson.NR_functions import Ybus, read_buses, iterate_NR, printing_buses, printing_Y_bus, printing_lines
+from Newton_raphson.NR_functions import Ybus, read_buses, iterate_NR, printing_buses, printing_Y_bus, printing_lines, Q_violated, Q_max_violation, VD_vec_Qmax, updateVD_vec, updateVD, Q_calc_violated
 from Newton_raphson.NR_network import Network
 
 bus_vec = read_buses('PartA/Busdata.csv')
@@ -44,9 +44,36 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit):
             delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit)            
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
             i += 1
+    """#Her testes Q_violation etter endt iterasjon. Da må ikke Q_violated være aktivert inne i while-loopen over. 
+    if (Q_violated(Q_max, Q_calc, bus_type)):
+            Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
+            bus_type = power_network.get_bus_type_vec()
+            VD_vec, VD_jacobian = power_network.get_VD_jacobian()
+            PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
+            
+            
+            VD_vec_current = VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V)
+            
+            
+            V  = power_network.get_V_vec()
+            VD_vec_current = updateVD_vec(VD_vec_current, delta_vd, bus_type_init, bus_type, delta, V)
+
+
+            delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
+            Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
     
+    while(abs(max(np.real(delta_vd))) > convergence):
+            print("Iteration", i+1, ": \n")
+            delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit)            
+            printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
+            i += 1
+    """
+
+
     printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus)
     return P_updated, Q_updated 
+
+    
       
 
 
