@@ -21,7 +21,8 @@ def main():
     method = input("""Which method do you want to run? \n
           If Newton-Raphson write 'NR',\n
           If Decoupled method write 'DCLF',\n
-          If Fast Decoupled write 'FDCLF',
+          If Fast Decoupled method 1 (update the partial initial estimates half-way through the algorithm) write 'FDCLF_1', \n
+          If Fast Decoupled method 2 (update the initial estimates only at the end of the first iteration) write 'FDCLF_2', \n
           If DC power flow write 'DCPF'\n""")
     
     reactive_limits = input("Do you want to run the Load Flow Analysis with reactive power limits: y/n \n")
@@ -36,12 +37,27 @@ def main():
         P_updated, Q_updated = NR(Ybus, power_network, convergence, Q_max, Q_limit)
     if (method == 'DCLF' and reactive_limits == "n"):
         Q_limit = False
-        P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
+        P_uFDpdated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
     if (method == 'DCLF_Q_max' and reactive_limits == "y"):
         Q_limit = True
         P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
-    if (method == 'FDCLF'):
-        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max)
+    if (method == 'FDCLF_1' and reactive_limits == "n"):
+        method = 1
+        Q_limit = False
+        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit)
+    if (method == 'FDCLF_1' and reactive_limits == "y"):
+        method = 1
+        Q_limit = True
+        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit)
+    if (method == 'FDCLF_2' and reactive_limits == "n"):
+        method = 2
+        Q_limit = False
+        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit)
+    if (method == 'FDCLF_2' and reactive_limits == "y"):
+        method = 2
+        Q_limit = True
+        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit)
+
     if (method == 'DCPF'):
         P_injections, delta_vec = DCPF(power_network)
     

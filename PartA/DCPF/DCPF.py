@@ -11,8 +11,9 @@ Ybus = Ybus('PartA/impedances.csv', 5)
 def Ybus_DCPF(power_network):
     BusNum =len(power_network.buses)
     
+    bus_type_vec = power_network.get_bus_type_vec()
     # B' matrix from FDLF can be multiplied by -1 to attain DCPF Ybus
-    b_dash = Ybus_fdclf('PartA/impedances.csv', BusNum, 'PartA/Busdata.csv', power_network, Ybus)[0]
+    b_dash = Ybus_fdclf(bus_type_vec, BusNum, Ybus)[0]
     Y_dcpf = np.real(b_dash.copy() * -1)
     return Y_dcpf
 

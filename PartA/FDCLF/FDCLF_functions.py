@@ -7,9 +7,9 @@ from pandas import *
 
 from Newton_raphson.NR_functions import read_buses, P_Updated, Q_Updated, Q_max_violation
 
-def Ybus_fdclf(file, shape, bus_file, power_network, Ybus):
+def Ybus_fdclf(bus_vec, shape, Ybus):
 
-    bus_vec = read_buses(bus_file)
+    #bus_vec = read_buses(bus_file)
     #Making B dash matrix
     b_dash = np.zeros((shape, shape), dtype=float)
     for i in range(shape):
@@ -17,7 +17,7 @@ def Ybus_fdclf(file, shape, bus_file, power_network, Ybus):
             b_dash[i][j] = np.real(np.imag(Ybus[i][j]))
 
     for x in range(len(bus_vec)):
-        if(bus_vec[x].bus_type == 0):
+        if(bus_vec[x] == 0):
             b_dash = np.delete(b_dash, x, 0)
             b_dash = np.delete(b_dash, x, 1) 
     
@@ -29,14 +29,14 @@ def Ybus_fdclf(file, shape, bus_file, power_network, Ybus):
 
     i = 0
     for x in range(len(bus_vec)):
-        if(bus_vec[x].bus_type == 0 or bus_vec[x].bus_type == 1):
+        if(bus_vec[x] == 0 or bus_vec[x] == 1):
             b_double_dash = np.delete(b_double_dash, x-i, 0)
             b_double_dash = np.delete(b_double_dash, x-i, 1)
             i += 1    
 
     return b_dash, b_double_dash
 
-def iterate_fdclf_1(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q):
+def iterate_fdclf_1(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash,):
     
     #1 Get delta_P
     P_updated = P_Updated(V, Ybus, bus_num_init, delta)
@@ -120,16 +120,22 @@ def iterate_fdclf_1(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_v
 
 
 
-
-def iterate_fdclf_2(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, b_dash, b_double_dash, P, Q, Q_max, power_network):
+def iterate_fdclf_2(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, Q_max, power_network, method, Q_limit):
     
+    #1 Creates b_dash and b_double_dash 
+    print("bus_type_vec")
+    print(bus_type_vec)
+
+    
+    b_dash, b_double_dash = Ybus_fdclf(bus_type_vec, len(bus_type_vec), Ybus)
+    print("b_double_dash")
+    print(b_double_dash)
     #1 Get delta_P
     P_updated = P_Updated(V, Ybus, bus_num_init, delta)
-    p_updated_return = P_updated.copy()
-
-    for x in range(num_buses):
-        if (bus_type_vec[x] == 0):
-            P_updated = np.delete(P_updated, x, 0)
+    P_updated_return = P_updated.copy()
+    
+    #Deletes Slack-element i P_vec, to calculate delta_Delta
+    P_updated = P_Updated_fixed(P_updated, bus_type_vec, num_buses)
  
     delta_P = P_vec_FD - P_updated
        
@@ -137,93 +143,64 @@ def iterate_fdclf_2(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_v
     b_dash_inv =  np.linalg.inv(b_dash)
    
     delta_Delta = np.matmul(-b_dash_inv,(delta_P/V_vec_1))
-    delta_updated = delta_vec.copy()
-    
-    i=0
-    if(len(delta_vec) > len(delta_Delta)):
-        for x in range(len(delta_vec)):
-            if (bus_type_vec[x] == 0):
-                    delta_vec = np.delete(delta_vec, x-i, 0)
-                    i += 1 
 
+
+    #Deletes Slack element in delta vec, to calculate delta updated
+    delta_vec = Delta_vec_fixed(delta_vec, bus_type_vec, delta_Delta)
+    
     delta_updated = delta_vec + delta_Delta
     delta_updated = delta_updated.tolist()
 
-    
-    for x in range(num_buses):
-        if (bus_type_vec[x] == 0):
-            delta_updated.insert(x,0)
+    #Restores delta_updated with all elements including Slack-bus element
+    delta_updated = Delta_vec_restored(delta_updated, bus_type_vec, num_buses)
 
-    #delta_updated = np.array(delta_updated)
     #3 Find Q with new delta values
-    Q_updated  = Q_Updated(V, Ybus, bus_num_init, delta)
+    if (method == 1):
+        Q_updated  = Q_Updated(V, Ybus, bus_num_init, delta_updated)
+    if (method == 2):
+        Q_updated  = Q_Updated(V, Ybus, bus_num_init, delta)
     Q_updated_return = Q_updated.copy()
 
-    i = 0
-    for x in range(num_buses):
-        if (bus_type_vec[x] == 0 or bus_type_vec[x] == 1):
-            Q_updated = np.delete(Q_updated, x + i, 0)
-            i -= 1
+    #Deletes Slack-element and PV_element i Q_vec, to calculate delta_V
+    Q_updated = Q_Updated_fixed(Q_updated, bus_type_vec, num_buses)
 
     delta_Q = Q_vec_FD - Q_updated
+    print("delta_Q")
+    print(delta_Q)
+
+    print("V_vec_2")
+    print(V_vec_2)
 
     #4 Find new V values
     b_double_dash_inv = np.linalg.inv(b_double_dash)
+
+    print("b_dd dash")
+    print(b_double_dash_inv)
     delta_V = np.matmul(-b_double_dash_inv ,(delta_Q/V_vec_2))
-    V_limited = []
-    for x in range(num_buses):
-        if (bus_type_vec[x] == 2):
-            V_limited.append(V[x])
-        else:
-            continue 
+    
+    #Creates V_vec without Slack- and PV-elements. To calculate V_updated.
+    V_limited = V_vec_fixed(V, bus_type_vec, num_buses)
+    print("V_limited")
+    print(V_limited)
 
     V_updated =  V_limited + delta_V 
-    i = 0
-    for x in range(num_buses):
-        if (bus_type_vec[x] == 2):
-            V[x] = V_updated[i]
-            i += 1
-        else:
-            continue
+    
+    #Restores V_vec with Slack- and PV-elements. 
+    V_updated = V_vec_restored(V, bus_type_vec, num_buses, V_updated)
 
     # Updating values for V_vec_1 and V_vec_2
-    V_vec_1_updated = V_vec_1.copy()
-    V_vec_2_updated = V_vec_2.copy()
-
-    i = 0
-    j = 0
-    for x in range(len(bus_type_vec)):
-        if (bus_type_vec[x] != 0): 
-            V_vec_1_updated[x-i] = V[x]
-        else:
-            i += 1
-        if (bus_type_vec[x] == 2):
-            V_vec_2_updated[x-j] = V[x]
-        else:
-            j += 1
-    """
-    bus_type = bus_type_vec
-    if(Q_violated(Q_max, Q_updated_return, bus_type)):
-        Q_updated, power_network = Q_max_violation(Q_updated_return, Q_max, bus_num_init, V, power_network)
-        bus_type = power_network.get_bus_type_vec()
-        V_vec_1, V_vec_2 = power_network.get_V_vec_FD()
-        Q_vec_FD = power_network.get_Q_vec_FD()
-        P_vec_FD = power_network.get_P_vec_FD()
-        print("V_vec")
-        print(V_vec_1)
-        print(V_vec_2)
+    V_vec_1_updated, V_vec_2_updated = Update_V_vec(bus_type_vec, V_vec_1, V_vec_2, V_updated)
+    if (Q_limit):
+        if(Q_violated(Q_max, Q_updated_return, bus_type_vec)):
+            Q_updated, power_network = Q_max_violation(Q_updated_return, Q_max, bus_num_init, V, power_network)
+            bus_type_vec = power_network.get_bus_type_vec()
+            V_vec_1, V_vec_2 = power_network.get_V_vec_FD()
+            Q_vec_FD = power_network.get_Q_vec_FD()
+            P_vec_FD = power_network.get_P_vec_FD()
+            V_vec_1_updated, V_vec_2_updated = Update_V_vec(bus_type_vec, V_vec_1, V_vec_2, V_updated)
         
-        #VD_vec_current = VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V)
-        
-        
-        V  = power_network.get_V_vec()
-        #VD_vec_current = updateVD_vec(VD_vec_current, delta_vd, bus_type_init, bus_type, delta, V)
-
-
-        #delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
-        #Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
-    """ 
-    return V, delta_updated, delta_P, delta_Delta, p_updated_return, Q_updated_return, V_vec_1_updated, V_vec_2_updated, power_network
+     
+    return V_updated, delta_updated, delta_P, delta_Delta, P_updated_return, Q_updated_return, V_vec_1_updated, V_vec_2_updated, power_network, bus_type_vec, Q_vec_FD, P_vec_FD
     
     
 
@@ -249,3 +226,71 @@ def printing_B_double_dash(B_double_dash):
     df.columns = np.arange(1, len(df)+1)
     print('B double dash: \n', df, '\n')
     return 
+
+
+def Update_V_vec(bus_type_vec, V_vec_1, V_vec_2, V):
+    V_vec_1_updated = V_vec_1.copy()
+    V_vec_2_updated = V_vec_2.copy()
+    i = 0
+    j = 0
+    for x in range(len(bus_type_vec)):
+        if (bus_type_vec[x] != 0): 
+            V_vec_1_updated[x-i] = V[x]
+        else:
+            i += 1
+        if (bus_type_vec[x] == 2):
+            V_vec_2_updated[x-j] = V[x]
+        else:
+            j += 1
+    return V_vec_1_updated, V_vec_2_updated
+
+
+def Q_Updated_fixed(Q_updated, bus_type_vec, num_buses):
+    i = 0
+    for x in range(num_buses):
+        if (bus_type_vec[x] == 0 or bus_type_vec[x] == 1):
+            Q_updated = np.delete(Q_updated, x + i, 0)
+            i -= 1
+    return Q_updated
+
+
+def P_Updated_fixed(P_updated, bus_type_vec, num_buses):
+    for x in range(num_buses):
+        if (bus_type_vec[x] == 0):
+            P_updated = np.delete(P_updated, x, 0)
+    return P_updated
+
+def Delta_vec_fixed(delta_vec, bus_type_vec, delta_Delta):
+    i=0
+    if(len(delta_vec) > len(delta_Delta)):
+        for x in range(len(delta_vec)):
+            if (bus_type_vec[x] == 0):
+                    delta_vec = np.delete(delta_vec, x-i, 0)
+                    i += 1 
+    return delta_vec
+
+def Delta_vec_restored(delta_updated, bus_type_vec, num_buses):
+    for x in range(num_buses):
+        if (bus_type_vec[x] == 0):
+            delta_updated.insert(x,0)
+    return delta_updated
+    
+
+def V_vec_fixed(V, bus_type_vec, num_buses):
+    V_limited = []
+    for x in range(num_buses):
+        if (bus_type_vec[x] == 2):
+            V_limited.append(V[x])
+        else:
+            continue 
+    return V_limited 
+
+def V_vec_restored(V, bus_type_vec, num_buses, V_updated):
+    i = 0
+    for x in range(num_buses):
+        if (bus_type_vec[x] == 2):
+            V[x] = V_updated[i]
+            i += 1
+        else:
+            continue
+    return V
