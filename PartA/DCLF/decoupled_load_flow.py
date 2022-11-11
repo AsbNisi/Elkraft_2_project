@@ -40,7 +40,7 @@ def DCLF(Ybus, power_network, convergence, Q_max, Q_limit):
             i += 1
             
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
-        elif (i==10):
+        elif (i==30):
             break
         else:
             print("Iteration", i+1, ": \n")

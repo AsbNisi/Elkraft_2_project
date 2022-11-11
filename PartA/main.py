@@ -4,7 +4,7 @@ from FDCLF.fast_decoupled_load_flow import FDCLF
 from DCPF import DCPF
 
 Ybus_dclf = Ybus_dclf('PartA/impedances.csv', 5)
-convergence = 0.00001
+convergence = 0.000000001
 Q_max = [0.5,5,-1.5,5,5]
 
 #-------------------------------------------------------------------------
@@ -42,7 +42,7 @@ def main():
     if (method == 'DCLF' and reactive_limits == "n"):
         Q_limit = False
         P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
-    if (method == 'DCLF_Q_max' and reactive_limits == "y"):
+    if (method == 'DCLF' and reactive_limits == "y"):
         Q_limit = True
         P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
     if (method == 'FDCLF_1' and reactive_limits == "n"):
