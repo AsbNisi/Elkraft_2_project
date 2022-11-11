@@ -47,6 +47,7 @@ def DCPF_calc(power_network):
     return P_injections, delta_vec
 
 
+"""
 start_time = timeit.default_timer()
 
 power_network = Network(read_buses('PartA/Busdata.csv'))
@@ -54,3 +55,5 @@ P_injections, phase_angles = DCPF_calc(power_network)
 
 runtime = timeit.default_timer() - start_time
 print(f'Runtime: {runtime}')  
+"""
+
