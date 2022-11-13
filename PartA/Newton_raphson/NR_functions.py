@@ -357,18 +357,26 @@ def VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V):
 
 
 #Printing load flow in lines
-def printing_lines(bus_vec, file, V, Ybus):
+def printing_lines(bus_vec, file, V_updated, Ybus, delta_updated):
     
     #Calculate complex power flow in lines
    
     S_base = 100 #MW
     df_lines = pd.read_csv(file, sep=";")
+    V_updated = np.real(V_updated)
+    delta_updated = np.real(delta_updated)
+    
+    V_complex = np.zeros(len(bus_vec), dtype=complex)
+    for i in range(len(bus_vec)):
+        V_complex[i] = cmath.rect(V_updated[i], delta_updated[i])
     
     S_ik = np.zeros((len(bus_vec), len(bus_vec)), dtype=complex)
     for i in range(len(bus_vec)):
         shunt = df_lines["Full_line_B"][i]/2*(1j)
+        
         for k in range(len(bus_vec)):
-            S_ik[i][k] = V[i]*np.conjugate(-Ybus[i][k]*(V[i]-V[k]) + shunt*V[i])*S_base
+            
+            S_ik[i][k] = V_complex[i]*np.conjugate(-Ybus[i][k]*(V_complex[i]-V_complex[k]) + shunt*V_complex[i])#*S_base
             
 
     print("Updated line info:", '\n')
@@ -380,7 +388,7 @@ def printing_lines(bus_vec, file, V, Ybus):
 
         line = str(from_line) + " - " + str(to_line)
         
-        d[line] = S_ik[from_line-1,to_line-1], np.real(S_ik[from_line-1,to_line-1]), np.imag(S_ik[from_line-1,to_line-1]), np.real(S_ik[from_line-1,to_line-1]+S_ik[to_line-1,from_line-1]), np.imag(S_ik[from_line-1,to_line-1]+S_ik[to_line-1,from_line-1]) 
+        d[line] = S_ik[from_line-1,to_line-1], np.real(S_ik[from_line-1,to_line-1]), np.imag(S_ik[from_line-1,to_line-1]), abs(np.real(S_ik[from_line-1,to_line-1]+S_ik[to_line-1,from_line-1])), abs(np.imag(S_ik[from_line-1,to_line-1]+S_ik[to_line-1,from_line-1])) 
     print ("{:<7} {:<23} {:<12} {:<12} {:<12} {:<12}".format('Line','Complex Power Flow [MVA] ','Active Power Flow [MW] ', 'Reactive Power Flow [MVar] ', "Active Power Loss [MW] ", "Reactive Power Loss [MVar] "))    
     for k, v in d.items():
         apparent, active, reactive, ploss, qloss = v

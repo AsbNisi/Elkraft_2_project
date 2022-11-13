@@ -59,7 +59,7 @@ def FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit):
         V_updated, delta_updated, delta_Delta, delta_V, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated, power_network, bus_type_vec, Q_vec_FD, P_vec_FD = iterate_fdclf(num_buses, bus_num_init, V_updated, V_vec_1_updated, V_vec_2_updated, delta_updated, delta_updated, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, Q_max, power_network, method, Q_limit)
         printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_vec)
     """
-    printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus)
+    printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus, delta_updated)
     
     return P_updated, Q_updated
 

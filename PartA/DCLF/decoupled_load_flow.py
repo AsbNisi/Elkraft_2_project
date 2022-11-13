@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import cmath
 
-from Newton_raphson.NR_functions import read_buses, P_Updated, Q_Updated, printing_buses
+from Newton_raphson.NR_functions import read_buses, P_Updated, Q_Updated, printing_buses, printing_lines
 from DCLF.DCLF_functions import Ybus_dclf, iterate_dclf
 from Newton_raphson.NR_network import Network
 
@@ -72,6 +72,8 @@ def DCLF(Ybus, power_network, convergence, Q_max, Q_limit):
         printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
         i += 1
     """
+    printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus, delta_updated)
+    
     return P_updated, Q_updated 
       
 

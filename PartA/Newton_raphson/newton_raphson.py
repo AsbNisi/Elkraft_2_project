@@ -70,7 +70,7 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit):
     """
 
 
-    printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus)
+    printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus, delta_updated)
     return P_updated, Q_updated 
 
     
