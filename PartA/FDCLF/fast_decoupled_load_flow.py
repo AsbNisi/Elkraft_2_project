@@ -31,7 +31,7 @@ def FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_lim
     delta_Delta = [1]
     delta_V = [1]
     i= 0
-    while((abs(max(np.real(delta_Delta))) > convergence) and (abs(max(np.real(delta_V))) > convergence)):
+    while((abs(max(np.real(delta_Delta))) > convergence) or (abs(max(np.real(delta_V))) > convergence)):
         if (i==0):
             print("Iteration", i+1, ": \n")
             V_updated, delta_updated, delta_Delta, delta_V, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated, power_network, bus_type_vec, Q_vec_FD, P_vec_FD = iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec_init, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, Q_max, power_network, method, Q_limit, reactive_limits_method)
@@ -54,11 +54,19 @@ def FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_lim
                 Q_vec_FD = power_network.get_Q_vec_FD()
                 P_vec_FD = power_network.get_P_vec_FD()
                 V_vec_1_updated, V_vec_2_updated = Update_V_vec(bus_type_vec, V_vec_1, V_vec_2, V_updated)
-        
-        while((abs(max(np.real(delta_Delta))) > convergence) and (abs(max(np.real(delta_V))) > convergence)):
+        delta_Delta = [1]
+        delta_V = [1]
+        while((abs(max(np.real(delta_Delta))) > convergence) or (abs(np.real(max(delta_V))) > convergence)):
             print("Iteration", i+1, ": \n")
             V_updated, delta_updated, delta_Delta, delta_V, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated, power_network, bus_type_vec, Q_vec_FD, P_vec_FD = iterate_fdclf(num_buses, bus_num_init, V_updated, V_vec_1_updated, V_vec_2_updated, delta_updated, delta_updated, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, Q_max, power_network, method, Q_limit, reactive_limits_method)
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_vec)
+            print("Delta")
+            print(delta_Delta)
+            print(delta_V)
+            print("Konvergens")
+            print(convergence)
+            print(abs(np.real(max(delta_V))))
+            print(abs(np.real(max(delta_V))) > convergence)
     
     printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus, delta_updated)
     

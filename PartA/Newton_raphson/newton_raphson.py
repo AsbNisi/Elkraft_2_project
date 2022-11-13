@@ -45,10 +45,9 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
             i += 1
 
-
     #Her testes Q_violation etter endt iterasjon. Da må ikke Q_violated være aktivert inne i while-loopen over. 
     if(reactive_limits_method== "after"):
-        if (Q_violated(Q_max, Q_calc, bus_type)):
+        if (Q_violated(Q_max, Q_updated, bus_type)):
                 Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
                 bus_type = power_network.get_bus_type_vec()
                 VD_vec, VD_jacobian = power_network.get_VD_jacobian()
@@ -64,10 +63,10 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
 
                 delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
                 Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
-        
+        delta_vd = [1] * len(VD_vec) 
         while(abs(max(np.real(delta_vd))) > convergence):
                 print("Iteration", i+1, ": \n")
-                delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit)            
+                delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit, reactive_limits_method)            
                 printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
                 i += 1
     

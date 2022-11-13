@@ -66,7 +66,7 @@ def DCLF(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_metho
 
                 delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
                 Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
-        
+        delta_vd = [1] * len(VD_vec) 
         while(abs(max(np.real(delta_vd))) > convergence):
             print("Iteration", i+1, ": \n")
             delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit, reactive_limits_method)            
