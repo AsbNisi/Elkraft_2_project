@@ -271,7 +271,7 @@ def Q_max_violation(Q_updated, Q_max, bus_num, V, power_network):
         power_network = Network(Buses)
     return Q_updated, power_network
 
-def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current, power_network, bus_type_init, Q_max, Q_limit):
+def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, delta_vec, Ybus, bus_num_init, P_init, Q_init, VD_vec_current, power_network, bus_type_init, Q_max, Q_limit, reactive_limits_method):
      
     #1 Calculates new values for P and Q separately
     P_calc = P_Calc(V_vec, Ybus, bus_num_init, delta_vec, P_init)
@@ -303,7 +303,7 @@ def iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, del
     #8 Checking Q_max 
     bus_type = bus_type_init
     if (Q_limit):
-        if(Q_violated(Q_max, Q_updated, bus_type)):
+        if(Q_violated(Q_max, Q_updated, bus_type) and reactive_limits_method == "before"):
             Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
             bus_type = power_network.get_bus_type_vec()
             VD_vec, VD_jacobian = power_network.get_VD_jacobian()

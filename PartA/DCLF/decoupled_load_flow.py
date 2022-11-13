@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
-import cmath
+import cmath 
 
-from Newton_raphson.NR_functions import read_buses, P_Updated, Q_Updated, printing_buses, printing_lines
+from Newton_raphson.NR_functions import read_buses, printing_buses, printing_lines, Q_violated, updateVD, updateVD_vec, Q_max_violation, VD_vec_Qmax, Q_calc_violated
 from DCLF.DCLF_functions import Ybus_dclf, iterate_dclf
 from Newton_raphson.NR_network import Network
 
@@ -15,7 +15,7 @@ convergence = 0.00001
 Q_max = [0.5, 5, 1.5,5,5]
 
 # Decoupled load flow main function
-def DCLF(Ybus, power_network, convergence, Q_max, Q_limit):
+def DCLF(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method):
     V_init = power_network.get_V_calc()   #Appends 1 if nan. Otherwise given value 
     delta_init = power_network.get_delta_calc()  #Appends 0 if nan. Otherwise given value 
     P_init = power_network.get_P_vec() #Returns P_values. If unknown, returns nan
@@ -36,7 +36,7 @@ def DCLF(Ybus, power_network, convergence, Q_max, Q_limit):
         if (i==0):  #First iteration
             print("Iteration", i+1, ": \n") 
             bus_type = power_network.get_bus_type_vec()
-            delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec, power_network, bus_type_init, Q_max, Q_limit)
+            delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec, power_network, bus_type_init, Q_max, Q_limit, reactive_limits_method)
             i += 1
             
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
@@ -44,34 +44,35 @@ def DCLF(Ybus, power_network, convergence, Q_max, Q_limit):
             break
         else:
             print("Iteration", i+1, ": \n")
-            delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit)            
+            delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit, reactive_limits_method)            
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
             i += 1
 
-    """#Her testes Q_violation etter endt iterasjon. Da må ikke Q_violated være aktivert inne i while-loopen over. 
-    if(Q_violated(Q_max, Q_updated, bus_type)):
-            Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
-            bus_type = power_network.get_bus_type_vec()
-            VD_vec, VD_jacobian = power_network.get_VD_jacobian()
-            PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
-            
-            
-            VD_vec_current = VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V)
-            
-            
-            V  = power_network.get_V_vec()
-            VD_vec_current = updateVD_vec(VD_vec_current, delta_vd, bus_type_init, bus_type, delta, V)
+    #Her testes Q_violation etter endt iterasjon. Da må ikke Q_violated være aktivert inne i while-loopen over. 
+    if(reactive_limits_method == 'after'):
+        if(Q_violated(Q_max, Q_updated, bus_type)):
+                Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
+                bus_type = power_network.get_bus_type_vec()
+                VD_vec, VD_jacobian = power_network.get_VD_jacobian()
+                PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
+                
+                
+                VD_vec_current = VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V)
+                
+                
+                V  = power_network.get_V_vec()
+                VD_vec_current = updateVD_vec(VD_vec_current, delta_vd, bus_type_init, bus_type, delta, V)
 
 
-            delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
-            Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
+                delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
+                Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
+        
+        while(abs(max(np.real(delta_vd))) > convergence):
+            print("Iteration", i+1, ": \n")
+            delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit, reactive_limits_method)            
+            printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
+            i += 1
     
-    while(abs(max(np.real(delta_vd))) > convergence):
-        print("Iteration", i+1, ": \n")
-        delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit)            
-        printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
-        i += 1
-    """
     printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus, delta_updated)
     
     return P_updated, Q_updated 

@@ -3,7 +3,7 @@ from re import I
 import numpy as np
 import pandas as pd
 import cmath
-from pandas import *
+from pandas import * 
 
 from Newton_raphson.NR_functions import P_Updated, Q_Updated, Q_max_violation
 
@@ -37,7 +37,7 @@ def Ybus_fdclf(bus_vec, shape, Ybus):
 
 
 
-def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, Q_max, power_network, method, Q_limit):
+def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, Q_max, power_network, method, Q_limit, reactive_limits_method):
     
     #1 Creates b_dash and b_double_dash 
     b_dash, b_double_dash = Ybus_fdclf(bus_type_vec, len(bus_type_vec), Ybus)
@@ -95,7 +95,7 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
     
     #Checking for Q_max if wanted
     if (Q_limit):
-        if(Q_violated(Q_max, Q_updated_return, bus_type_vec)):
+        if(Q_violated(Q_max, Q_updated_return, bus_type_vec) and reactive_limits_method == 'before'):
             Q_updated, power_network = Q_max_violation(Q_updated_return, Q_max, bus_num_init, V, power_network)
             bus_type_vec = power_network.get_bus_type_vec()
             V_vec_1, V_vec_2 = power_network.get_V_vec_FD()

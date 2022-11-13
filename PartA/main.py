@@ -29,39 +29,42 @@ def main():
           If Fast Decoupled method 2 (update the initial estimates only at the end of the first iteration) write 'FDCLF_2', \n
           If DC power flow write 'DCPF'\n""")
     
-    reactive_limits = input("Do you want to run the Load Flow Analysis with reactive power limits: y/n \n")
+    reactive_limits = input("Do you want to run the Load Flow Analysis with reactive power limits: 'y'/'n' \n")
+    if(reactive_limits == 'y'):
+        reactive_limits_method = input("Do you want to check Q_violation before or after ended iteration? 'before'/'after' \n")
+    else:
+        reactive_limits_method = None
     
     print("Chosen method: ", method, "\n\n")
     
     if (method == "NR" and reactive_limits == "n"):
         Q_limit = False
-        P_updated, Q_updated = NR(Ybus, power_network, convergence, Q_max, Q_limit)
+        P_updated, Q_updated = NR(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
     if (method == "NR" and reactive_limits == "y"):
         Q_limit = True
-        P_updated, Q_updated = NR(Ybus, power_network, convergence, Q_max, Q_limit)
+        P_updated, Q_updated = NR(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
     if (method == 'DCLF' and reactive_limits == "n"):
         Q_limit = False
-        P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
+        P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
     if (method == 'DCLF' and reactive_limits == "y"):
         Q_limit = True
-        P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit)
+        P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
     if (method == 'FDCLF_1' and reactive_limits == "n"):
         method = 1
         Q_limit = False
-        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit)
+        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_limits_method)
     if (method == 'FDCLF_1' and reactive_limits == "y"):
         method = 1
         Q_limit = True
-        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit)
+        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_limits_method)
     if (method == 'FDCLF_2' and reactive_limits == "n"):
         method = 2
         Q_limit = False
-        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit)
+        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_limits_method)
     if (method == 'FDCLF_2' and reactive_limits == "y"):
         method = 2
         Q_limit = True
-        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit)
-
+        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_limits_method)
     if (method == 'DCPF'):
         P_injections, delta_vec = DCPF_calc(power_network)
     
