@@ -151,3 +151,16 @@ def iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, d
 
     return delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V 
 
+
+#PQ_to_PV
+def PQ_to_PV(bus_type_init, bus_type, power_network, V_updated):
+    Buses = power_network.buses
+    for i in range (len(bus_type_init)):
+        if (bus_type_init[i] != bus_type[i]):
+            Buses[i].bus_type = 1
+            Buses[i].Q = np.nan
+            Buses[i].V = V_updated[i]
+        else:
+            continue
+        power_network = Network(Buses)
+    return power_network

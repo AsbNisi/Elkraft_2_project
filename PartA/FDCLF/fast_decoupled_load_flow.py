@@ -3,7 +3,7 @@ import pandas as pd
 import cmath
 
 from FDCLF.FDCLF_functions import Ybus_fdclf, iterate_fdclf, printing_B_dash, printing_B_double_dash, Update_V_vec
-from Newton_raphson.NR_functions import read_buses, Ybus, printing_buses, printing_Y_bus, Q_violated, Q_max_violation, printing_lines   
+from Newton_raphson.NR_functions import read_buses, Ybus, printing_buses, printing_Y_bus, Q_violated, Q_max_violation, printing_lines, PQ_to_PV  
 from Newton_raphson.NR_network import Network
 
 
@@ -23,6 +23,7 @@ def FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_lim
     num_buses = len(bus_num_init)
     delta_vec_init = power_network.get_delta_vec_FD()
     bus_type_vec = power_network.get_bus_type_vec()
+    bus_type_init_clean = power_network.get_bus_type_vec()
     V = power_network.get_V_calc()
     delta = power_network.get_delta_vec()
     delta = np.zeros(len(bus_vec))
@@ -61,6 +62,8 @@ def FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_lim
             V_updated, delta_updated, delta_Delta, delta_V, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated, power_network, bus_type_vec, Q_vec_FD, P_vec_FD = iterate_fdclf(num_buses, bus_num_init, V_updated, V_vec_1_updated, V_vec_2_updated, delta_updated, delta_updated, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, Q_max, power_network, method, Q_limit, reactive_limits_method)
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_vec)
     
+    Power_network = PQ_to_PV(bus_type_init_clean, bus_type_vec, power_network, V_updated) #Sets the transfrormed PV_bus back to a PV_bus.
+    printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_init_clean)
     printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus, delta_updated)
     
     return P_updated, Q_updated

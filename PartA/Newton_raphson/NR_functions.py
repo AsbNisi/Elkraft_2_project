@@ -415,11 +415,11 @@ def printing_lines(bus_vec, file, V_updated, Ybus, delta_updated):
 
 
 
-#Skjønner ikke hvorfor vi må ha denne enda
-def PQ_to_PV(bus_type_init, Q_updated, Q_max, V_updated, power_network):
+#PQ_to_PV
+def PQ_to_PV(bus_type_init, bus_type, power_network, V_updated):
     Buses = power_network.buses
-    for i in range (len(Q_max)):
-        if (bus_type_init[i] != power_network.get_bus_type_vec()[i] and Q_updated[i] < Q_max[i]):
+    for i in range (len(bus_type_init)):
+        if (bus_type_init[i] != bus_type[i]):
             Buses[i].bus_type = 1
             Buses[i].Q = np.nan
             Buses[i].V = V_updated[i]

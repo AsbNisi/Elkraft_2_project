@@ -1,6 +1,6 @@
 import numpy as np
 
-from Newton_raphson.NR_functions import Ybus, read_buses, iterate_NR, printing_buses, printing_Y_bus, printing_lines, Q_violated, Q_max_violation, VD_vec_Qmax, updateVD_vec, updateVD, Q_calc_violated
+from Newton_raphson.NR_functions import Ybus, read_buses, iterate_NR, printing_buses, printing_Y_bus, printing_lines, Q_violated, Q_max_violation, VD_vec_Qmax, updateVD_vec, updateVD, Q_calc_violated, PQ_to_PV
 from Newton_raphson.NR_network import Network
 
 bus_vec = read_buses('PartA/Busdata.csv')
@@ -24,7 +24,8 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
                                                      #Returns PQ_jacobian. Tis is av vactor of "PQ"-objects which contains information if element is P or Q, and what kind of bus the P and Q bellongs to. 
     VD_vec, VD_jacobian = power_network.get_VD_jacobian() #Returns VD_vec. This vector consists of unknown elements of V and delta. This elemens are given flat start values. 1 if V, 0 if delta. This is only valid before the first iteration. Delta first, then V. 
                                                           #Returns VD:jacobian. This vector consists of "VD"-objects which contains information if element is V or delta, and what kind of bus the V and delta bellongs to.
-    bus_type_init = power_network.get_bus_type_vec() #Returns vector with bus type. O if slack, 1 if PV and 2 if PQ.       
+    bus_type_init = power_network.get_bus_type_vec() #Returns vector with bus type. O if slack, 1 if PV and 2 if PQ. 
+    bus_type_init_clean = power_network.get_bus_type_vec() #Returns vector with bus type. O if slack, 1 if PV and 2 if PQ.    
     num_buses = len(bus_num_init)  #Calculates how many busses there are in the network. 
     
     
@@ -69,10 +70,11 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
                 delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit, reactive_limits_method)            
                 printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
                 i += 1
-    
 
+    Power_network = PQ_to_PV(bus_type_init_clean, bus_type, power_network, V_updated) #Sets the transfrormed PV_bus back to a PV_bus.
 
-    printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus, delta_updated)
+    printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_init_clean)
+    printing_lines(bus_type_init_clean, "PartA/impedances.csv", V_updated, Ybus, delta_updated)
     return P_updated, Q_updated 
 
     
