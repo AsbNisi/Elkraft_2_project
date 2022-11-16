@@ -9,6 +9,9 @@ Ybus_dclf = Ybus_dclf('PartA/impedances.csv', 5)
 convergence = 0.000000001
 Q_max = [0.5,5,-1.5,5,5]
 
+Q_max_trans = [0.5,5,-1.5,5,5, 5, 5]
+
+
 #-------------------------------------------------------------------------
 # Instructions
 # Choose the method you want to use to solve the load flow problem
@@ -71,18 +74,18 @@ def main():
         P_injections, delta_vec = DCPF_calc(power_network)
     if (method == "NR_trans" and reactive_limits == "n"):
         Q_limit = False
-        P_updated, Q_updated = NR_trans(Ybus_trans, power_network_trans, convergence, Q_max, Q_limit, reactive_limits_method)
+        P_updated, Q_updated = NR_trans(Ybus_trans, power_network_trans, convergence, Q_max_trans, Q_limit, reactive_limits_method)
     if (method == "NR_trans" and reactive_limits == "y"):
         Q_limit = True
-        P_updated, Q_updated = NR_trans(Ybus_trans, power_network_trans, convergence, Q_max, Q_limit, reactive_limits_method)
+        P_updated, Q_updated = NR_trans(Ybus_trans, power_network_trans, convergence, Q_max_trans, Q_limit, reactive_limits_method)
     if (method == 'FDCLF_trans' and reactive_limits == "n"):
         Q_limit = False
         method = 1
-        P_updated, Q_updated = FDCLF_trans(Ybus_trans, power_network_trans, convergence, Q_max, method, Q_limit, reactive_limits_method)
+        P_updated, Q_updated = FDCLF_trans(Ybus_trans, power_network_trans, convergence, Q_max_trans, method, Q_limit, reactive_limits_method)
     if (method == 'FDCLF_trans' and reactive_limits == "y"):
         Q_limit = True
         method = 1
-        P_updated, Q_updated = FDCLF_trans(Ybus_trans, power_network_trans, convergence, Q_max, method, Q_limit, reactive_limits_method)
+        P_updated, Q_updated = FDCLF_trans(Ybus_trans, power_network_trans, convergence, Q_max_trans, method, Q_limit, reactive_limits_method)
 
     
 
