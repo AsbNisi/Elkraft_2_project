@@ -75,10 +75,13 @@ def main():
     if (method == "NR_trans" and reactive_limits == "y"):
         Q_limit = True
         P_updated, Q_updated = NR_trans(Ybus_trans, power_network_trans, convergence, Q_max, Q_limit, reactive_limits_method)
-    if (method == 'FDCLF_trans'):
+    if (method == 'FDCLF_trans' and reactive_limits == "n"):
         Q_limit = False
         method = 1
-        #P_updated, Q_updated = FDCLF_trans(Ybus, power_network, convergence, Q_max, Q_limit)
+        P_updated, Q_updated = FDCLF_trans(Ybus_trans, power_network_trans, convergence, Q_max, method, Q_limit, reactive_limits_method)
+    if (method == 'FDCLF_trans' and reactive_limits == "y"):
+        Q_limit = True
+        method = 1
         P_updated, Q_updated = FDCLF_trans(Ybus_trans, power_network_trans, convergence, Q_max, method, Q_limit, reactive_limits_method)
 
     
