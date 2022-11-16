@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import cmath
 
-from FDCLF.FDCLF_functions import Ybus_fdclf, iterate_fdclf_1, iterate_fdclf_2, printing_B_dash, printing_B_double_dash
+from FDCLF.FDCLF_functions import Ybus_fdclf, iterate_fdclf, printing_B_dash, printing_B_double_dash
 from Task4.Task4_NR_func import Ybus_trans
 from Task4.Trans_network import Network
 from Newton_raphson.NR_functions import read_buses, printing_buses, printing_Y_bus

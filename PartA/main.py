@@ -2,6 +2,8 @@ from Newton_raphson.newton_raphson import NR, power_network, Ybus
 from DCLF.decoupled_load_flow import DCLF, power_network, Ybus_dclf
 from FDCLF.fast_decoupled_load_flow import FDCLF
 from DCPF.DCPF import DCPF_calc
+from Task4.Task4_NR import NR_trans, Ybus_trans, power_network_trans
+from Task4.Task4_FDCLF import FDCLF_trans
 
 Ybus_dclf = Ybus_dclf('PartA/impedances.csv', 5)
 convergence = 0.000000001
@@ -67,6 +69,16 @@ def main():
         P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_limits_method)
     if (method == 'DCPF'):
         P_injections, delta_vec = DCPF_calc(power_network)
+    if (method == "NR_trans" and reactive_limits == "n"):
+        Q_limit = False
+        P_updated, Q_updated = NR_trans(Ybus_trans, power_network_trans, convergence, Q_max, Q_limit, reactive_limits_method)
+    if (method == "NR_trans" and reactive_limits == "y"):
+        Q_limit = True
+        P_updated, Q_updated = NR_trans(Ybus_trans, power_network_trans, convergence, Q_max, Q_limit, reactive_limits_method)
+    """if (method == 'FDCLF_trans'):
+        Q_limit = False
+        P_updated, Q_updated = FDCLF_trans(Ybus, power_network, convergence, Q_max, Q_limit)"""
+    
     
 
 main()
