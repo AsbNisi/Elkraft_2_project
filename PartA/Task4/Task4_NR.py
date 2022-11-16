@@ -9,9 +9,9 @@ power_network_trans = Network(bus_vec)
 Ybus_trans = Ybus_trans('PartA/Task4/impedancesPart4.csv', len(bus_vec))
 
 convergence = 0.00001
-Q_max = [0.5,5,-1.5,5,5]
+Q_max = [0.5,5,-1.5,5,5, 5, 5]
 
-
+ 
 def NR_trans(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method):
     V_init = power_network.get_V_calc()   #Appends 1 if nan. Otherwise given value 
     delta_init = power_network.get_delta_calc()  #Appends 0 if nan. Otherwise given value 
