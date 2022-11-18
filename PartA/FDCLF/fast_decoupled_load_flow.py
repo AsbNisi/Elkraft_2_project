@@ -50,6 +50,7 @@ def FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_lim
     if(reactive_limits_method == 'after'):    
         if(Q_violated(Q_max, Q_updated, bus_type_vec)):
                 Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
+                power_network = PQ_to_PV(bus_type_init_clean, bus_type_vec, power_network, V_updated)
                 bus_type_vec = power_network.get_bus_type_vec()
                 V_vec_1, V_vec_2 = power_network.get_V_vec_FD()
                 Q_vec_FD = power_network.get_Q_vec_FD()
@@ -61,7 +62,7 @@ def FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_lim
             print("Iteration", i+1, ": \n")
             V_updated, delta_updated, delta_Delta, delta_V, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated, power_network, bus_type_vec, Q_vec_FD, P_vec_FD = iterate_fdclf(num_buses, bus_num_init, V_updated, V_vec_1_updated, V_vec_2_updated, delta_updated, delta_updated, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, Q_max, power_network, method, Q_limit, reactive_limits_method)
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_vec)
-    
+            i += 1
     Power_network = PQ_to_PV(bus_type_init_clean, bus_type_vec, power_network, V_updated) #Sets the transfrormed PV_bus back to a PV_bus.
     printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_init_clean)
     printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus, delta_updated)
