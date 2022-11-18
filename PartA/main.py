@@ -4,6 +4,8 @@ from FDCLF.fast_decoupled_load_flow import FDCLF
 from DCPF.DCPF import DCPF_calc
 from Task4.Task4_NR import NR_trans, Ybus_trans, power_network_trans
 from Task4.Task4_FDCLF import FDCLF_trans
+import time
+
 
 Ybus_dclf = Ybus_dclf('PartA/impedances.csv', 5)
 convergence = 0.000000001
@@ -44,49 +46,74 @@ def main():
     
     if (method == "NR" and reactive_limits == "n"):
         Q_limit = False
+        start = time.process_time()
         P_updated, Q_updated = NR(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
+        print(time.process_time() - start)
     if (method == "NR" and reactive_limits == "y"):
         Q_limit = True
+        start = time.process_time()
         P_updated, Q_updated = NR(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
+        print(time.process_time() - start)
     if (method == 'DCLF' and reactive_limits == "n"):
         Q_limit = False
+        start = time.process_time()
         P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
+        print(time.process_time() - start)
     if (method == 'DCLF' and reactive_limits == "y"):
         Q_limit = True
+        start = time.process_time()
         P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
+        print(time.process_time() - start)
     if (method == 'FDCLF_1' and reactive_limits == "n"):
         method = 1
         Q_limit = False
+        start = time.process_time()
         P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_limits_method)
+        print(time.process_time() - start)
     if (method == 'FDCLF_1' and reactive_limits == "y"):
         method = 1
         Q_limit = True
-        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_limits_method)
+        start = time.process_time()
+        P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_limits_method)   
+        print(time.process_time() - start)
     if (method == 'FDCLF_2' and reactive_limits == "n"):
         method = 2
         Q_limit = False
+        start = time.process_time()
         P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_limits_method)
+        print(time.process_time() - start)
     if (method == 'FDCLF_2' and reactive_limits == "y"):
         method = 2
         Q_limit = True
+        start = time.process_time()
         P_updated, Q_updated = FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_limits_method)
+        print(time.process_time() - start)
     if (method == 'DCPF'):
+        start = time.process_time()
         P_injections, delta_vec = DCPF_calc(power_network)
+        print(time.process_time() - start)
     if (method == "NR_trans" and reactive_limits == "n"):
         Q_limit = False
+        start = time.process_time()
         P_updated, Q_updated = NR_trans(Ybus_trans, power_network_trans, convergence, Q_max_trans, Q_limit, reactive_limits_method)
+        print(time.process_time() - start)
     if (method == "NR_trans" and reactive_limits == "y"):
         Q_limit = True
+        start = time.process_time()
         P_updated, Q_updated = NR_trans(Ybus_trans, power_network_trans, convergence, Q_max_trans, Q_limit, reactive_limits_method)
+        print(time.process_time() - start)
     if (method == 'FDCLF_trans' and reactive_limits == "n"):
         Q_limit = False
         method = 1
+        start = time.process_time()
         P_updated, Q_updated = FDCLF_trans(Ybus_trans, power_network_trans, convergence, Q_max_trans, method, Q_limit, reactive_limits_method)
+        print(time.process_time() - start)
     if (method == 'FDCLF_trans' and reactive_limits == "y"):
         Q_limit = True
         method = 1
+        start = time.process_time()
         P_updated, Q_updated = FDCLF_trans(Ybus_trans, power_network_trans, convergence, Q_max_trans, method, Q_limit, reactive_limits_method)
-
+        print(time.process_time() - start)
     
 
 main()
