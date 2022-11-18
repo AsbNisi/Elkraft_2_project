@@ -32,7 +32,9 @@ def main():
           If Decoupled method write 'DCLF',\n
           If Fast Decoupled method 1 (update the partial initial estimates half-way through the algorithm) write 'FDCLF_1', \n
           If Fast Decoupled method 2 (update the initial estimates only at the end of the first iteration) write 'FDCLF_2', \n
-          If DC power flow write 'DCPF'\n""")
+          If DC power flow write 'DCPF'\n
+          If Newton-Raphson with tansformers write 'NR_trans',\n
+          If Fast Decoupled method with transformers write 'FDCLF_trans'\n """)
     
     reactive_limits = input("Do you want to run the Load Flow Analysis with reactive power limits: 'y'/'n' \n")
     if(reactive_limits == 'y'):
@@ -87,6 +89,6 @@ def main():
         method = 1
         P_updated, Q_updated = FDCLF_trans(Ybus_trans, power_network_trans, convergence, Q_max_trans, method, Q_limit, reactive_limits_method)
 
-    
+    False
 
 main()
