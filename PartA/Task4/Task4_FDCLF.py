@@ -5,7 +5,7 @@ import cmath
 from FDCLF.FDCLF_functions import Ybus_fdclf, iterate_fdclf, printing_B_dash, printing_B_double_dash, Update_V_vec
 from Task4.Task4_NR_func import Ybus_trans
 from Task4.Trans_network import Network
-from Newton_raphson.NR_functions import read_buses, printing_buses, printing_Y_bus, printing_lines, Q_violated, Q_max_violation
+from Newton_raphson.NR_functions import read_buses, printing_buses, printing_Y_bus, printing_lines, Q_violated, Q_max_violation, PQ_to_PV
 
 
 bus_vec = read_buses('PartA/Task4/BusdataWith7Buses.csv')
@@ -14,7 +14,7 @@ Ybus = Ybus_trans('PartA/Task4/impedancesPart4.csv', len(bus_vec))
 
 
 convergence = 0.00001
-Q_max = [0.5, 5, 1.5,5,5]
+Q_max = [0.5,5,1.5,5,5,5,5]
 
 
 def FDCLF_trans(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_limits_method):
@@ -25,6 +25,7 @@ def FDCLF_trans(Ybus, power_network, convergence, Q_max, method, Q_limit, reacti
     num_buses = len(bus_num_init)
     delta_vec_init = power_network.get_delta_vec_FD()
     bus_type_vec = power_network.get_bus_type_vec()
+    bus_type_init_clean = power_network.get_bus_type_vec()
     V = power_network.get_V_calc()
     delta = power_network.get_delta_vec()
     delta = np.zeros(len(bus_vec))
@@ -40,7 +41,9 @@ def FDCLF_trans(Ybus, power_network, convergence, Q_max, method, Q_limit, reacti
                                                                              
             i += 1
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_vec)
-        
+        elif(i == 30):
+            print("NO CONVERGENCE")
+            break
         else:
             print("Iteration", i+1, ": \n")
             V_updated, delta_updated, delta_Delta, delta_V, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated, power_network, bus_type_vec, Q_vec_FD, P_vec_FD = iterate_fdclf(num_buses, bus_num_init, V_updated, V_vec_1_updated, V_vec_2_updated, delta_updated, delta_updated, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, Q_max, power_network, method, Q_limit, reactive_limits_method)
@@ -62,8 +65,13 @@ def FDCLF_trans(Ybus, power_network, convergence, Q_max, method, Q_limit, reacti
             print("Iteration", i+1, ": \n")
             V_updated, delta_updated, delta_Delta, delta_V, P_updated, Q_updated, V_vec_1_updated, V_vec_2_updated, power_network, bus_type_vec, Q_vec_FD, P_vec_FD = iterate_fdclf(num_buses, bus_num_init, V_updated, V_vec_1_updated, V_vec_2_updated, delta_updated, delta_updated, Ybus, bus_type_vec, P_vec_FD, Q_vec_FD, Q_max, power_network, method, Q_limit, reactive_limits_method)
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_vec)
-    
+            if(i == 20):
+                print("NO CONVERGENCE")
+                break
+    Power_network = PQ_to_PV(bus_type_init_clean, bus_type_vec, power_network, V_updated) #Sets the transfrormed PV_bus back to a PV_bus.
+    printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_init_clean)
     printing_lines(bus_vec, 'PartA/Task4/impedancesPart4.csv', V_updated, Ybus, delta_updated)
+    
     
     return P_updated, Q_updated
 

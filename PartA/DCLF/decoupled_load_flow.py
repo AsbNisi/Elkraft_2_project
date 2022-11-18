@@ -53,6 +53,7 @@ def DCLF(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_metho
     if(reactive_limits_method == 'after'):
         if(Q_violated(Q_max, Q_updated, bus_type)):
                 Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
+                power_network = PQ_to_PV(bus_type_init, bus_type, power_network, V_updated)
                 bus_type = power_network.get_bus_type_vec()
                 VD_vec, VD_jacobian = power_network.get_VD_jacobian()
                 PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
