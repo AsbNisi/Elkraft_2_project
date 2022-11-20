@@ -59,12 +59,12 @@ def main():
     if (method == 'DCLF' and reactive_limits == "n"):
         Q_limit = False
         start = time.process_time()
-        P_updated, Q_updated  = DCLF(Ybus_dlf, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
+        P_updated, Q_updated  = DCLF(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
         print(time.process_time() - start)
     if (method == 'DCLF' and reactive_limits == "y"):
         Q_limit = True
         start = time.process_time()
-        P_updated, Q_updated  = DCLF(Ybus_dlf, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
+        P_updated, Q_updated  = DCLF(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
         print(time.process_time() - start)
     if (method == 'FDCLF_1' and reactive_limits == "n"):
         method = 1
