@@ -1,5 +1,5 @@
 from Newton_raphson.newton_raphson import NR, power_network, Ybus
-from DCLF.decoupled_load_flow import DCLF, power_network, Ybus_dclf
+from DCLF.decoupled_load_flow import DCLF, power_network, Ybus_dlf
 from FDCLF.fast_decoupled_load_flow import FDCLF
 from DCPF.DCPF import DCPF_calc
 from Task4.Task4_NR import NR_trans, Ybus_trans, power_network_trans
@@ -7,7 +7,7 @@ from Task4.Task4_FDCLF import FDCLF_trans
 import time
 
 
-Ybus_dclf = Ybus_dclf('PartA/impedances.csv', 5)
+
 convergence = 0.000000001
 Q_max = [0.5,5,-1.5,5,5]
 
@@ -59,12 +59,12 @@ def main():
     if (method == 'DCLF' and reactive_limits == "n"):
         Q_limit = False
         start = time.process_time()
-        P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
+        P_updated, Q_updated  = DCLF(Ybus_dlf, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
         print(time.process_time() - start)
     if (method == 'DCLF' and reactive_limits == "y"):
         Q_limit = True
         start = time.process_time()
-        P_updated, Q_updated  = DCLF(Ybus_dclf, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
+        P_updated, Q_updated  = DCLF(Ybus_dlf, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
         print(time.process_time() - start)
     if (method == 'FDCLF_1' and reactive_limits == "n"):
         method = 1

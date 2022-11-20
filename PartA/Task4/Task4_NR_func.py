@@ -68,7 +68,5 @@ def read_transformers(Y_bus, file, shape):
         Y_bus[to_line-1][from_line-1] -= Y_transformer/a
         Y_bus[to_line-1][to_line-1] += Y_transformer
     
-    print("This is the new YBus")
-    printing_Y_bus(Y_bus)
     return Y_bus
 
