@@ -2,15 +2,15 @@ import numpy as np
 import pandas as pd
 import cmath 
 
-from Newton_raphson.NR_functions import read_buses, printing_buses, printing_lines, Q_violated, updateVD, updateVD_vec, Q_max_violation, VD_vec_Qmax, Q_calc_violated, PQ_to_PV
-from DCLF.DCLF_functions import Ybus_dclf, iterate_dclf, printing_Y_bus
+from Newton_raphson.NR_functions import read_buses, printing_buses, printing_lines, Q_violated, updateVD, updateVD_vec, Q_max_violation, VD_vec_Qmax, Q_calc_violated, PQ_to_PV, Ybus, printing_Y_bus
+from DCLF.DCLF_functions import iterate_dclf #, printing_Y_bus, Ybus_dclf 
 from Newton_raphson.NR_network import Network
 
 
 bus_vec = read_buses('PartA/Busdata.csv')
 power_network = Network(bus_vec)
 
-Ybus_dlf = Ybus_dclf('PartA/impedances.csv', 5)
+Ybus_dlf = Ybus('PartA/impedances.csv', 5)
 convergence = 0.00001
 Q_max = [0.5, 5, 1.5,5,5]
 
