@@ -41,7 +41,7 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
     
     #1 Creates b_dash and b_double_dash 
     b_dash, b_double_dash = Ybus_fdclf(bus_type_vec, len(bus_type_vec), Ybus)
-    
+
     #2 Get delta_P
     P_updated = P_Updated(V, Ybus, bus_num_init, delta)
     P_updated_return = P_updated.copy()

@@ -11,6 +11,7 @@ bus_vec = read_buses('PartA/Busdata.csv')
 power_network = Network(bus_vec)
 Ybus = Ybus('PartA/impedances.csv', len(bus_vec))
 
+
 convergence = 0.00001
 Q_max = [0.5, 5, 1.5,5,5]
 
@@ -27,7 +28,10 @@ def FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_lim
     V = power_network.get_V_calc()
     delta = power_network.get_delta_vec()
     delta = np.zeros(len(bus_vec))
-    printing_Y_bus(Ybus) 
+    B_dash, B_double_dash = Ybus_fdclf(bus_type_vec, len(bus_vec), Ybus)
+    printing_Y_bus(Ybus)
+    printing_B_dash(B_dash) 
+    printing_B_double_dash(B_double_dash)
 
     delta_Delta = [1]
     delta_V = [1]

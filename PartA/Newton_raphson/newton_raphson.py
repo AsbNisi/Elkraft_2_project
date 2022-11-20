@@ -7,7 +7,7 @@ bus_vec = read_buses('PartA/Busdata.csv')
 
 power_network = Network(bus_vec)
 
-Ybus = Ybus('PartA/impedances.csv', 5)
+Ybus = Ybus('PartA/impedances.csv', len(bus_vec))
 
 convergence = 0.00001
 Q_max = [0.5,5,-1.5,5,5]

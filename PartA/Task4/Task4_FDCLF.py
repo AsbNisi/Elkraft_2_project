@@ -29,7 +29,12 @@ def FDCLF_trans(Ybus, power_network, convergence, Q_max, method, Q_limit, reacti
     V = power_network.get_V_calc()
     delta = power_network.get_delta_vec()
     delta = np.zeros(len(bus_vec))
-    printing_Y_bus(Ybus) 
+    
+    B_dash, B_double_dash = Ybus_fdclf(bus_type_vec, len(bus_vec), Ybus)
+    printing_Y_bus(Ybus)
+    printing_B_dash(B_dash) 
+    printing_B_double_dash(B_double_dash)
+ 
 
     delta_Delta = [1]
     delta_V = [1]
