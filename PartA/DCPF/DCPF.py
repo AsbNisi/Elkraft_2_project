@@ -1,11 +1,13 @@
 import numpy as np
-from Newton_raphson.NR_functions import read_buses, P_Calc, Ybus
+from Newton_raphson.NR_functions import read_buses, P_Calc, Ybus, printing_buses
 from DCLF.DCLF_functions import Ybus_dclf
 from Newton_raphson.NR_network import Network
 from FDCLF.FDCLF_functions import Ybus_fdclf
-import timeit
-power_network = Network(read_buses('PartA/Busdata.csv'))
-Ybus = Ybus('PartA/impedances.csv', 5)
+import pandas as pd
+import cmath
+bus_vec = read_buses('Busdata.csv')
+power_network = Network(bus_vec)
+Ybus = Ybus('impedances.csv', 5)
 
 # Attaining the DCPF Ybus for a given power network
 def Ybus_DCPF(power_network):
@@ -41,24 +43,69 @@ def DCPF_calc(power_network):
     V_o = np.array([1 for _ in range(BusNum)])
     
     # Ybus for DCLF is used to find power flows as it only includes line susceptances
-    Ybus_DCLF = Ybus_dclf('PartA/impedances.csv', BusNum)
+    Ybus_DCLF = Ybus_dclf('impedances.csv', BusNum)
     P_injections = np.real(P_Calc(V_o, Ybus_DCLF, range(BusNum), delta_vec, P_o))
     
-    print('Power injections')
-    print(P_injections)
-    print('Angles')
-    print(delta_vec)
-
+    bus_num_init = power_network.get_bus_num_vec()
+    bus_type_init_clean = power_network.get_bus_type_vec()
+    P_updated = P_injections
+    Q_updated = [0 for _ in range(len(P_updated))]
+    V_updated = [1 for _ in range(len(P_updated))]
+    delta_updated = delta_vec
+    printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_init_clean)
+    printing_lines(bus_vec, "impedances.csv", V_updated, Ybus, delta_updated)
     return P_injections, delta_vec
 
 
-"""
-start_time = timeit.default_timer()
 
-power_network = Network(read_buses('PartA/Busdata.csv'))
-P_injections, phase_angles = DCPF_calc(power_network)
+#Printing load flow in lines
+def printing_lines(bus_vec, file, V_updated, Ybus, delta_updated):
+    
+    #Calculate complex power flow in lines
+    df_lines = pd.read_csv(file, sep=";")
+    V_updated = np.real(V_updated)
+    delta_updated = np.real(delta_updated)
+    
+    V_complex = np.zeros(len(bus_vec), dtype=complex)
+    for i in range(len(bus_vec)):
+        V_complex[i] = cmath.rect(V_updated[i], delta_updated[i])
+    
+    S_ik = np.zeros((len(bus_vec), len(bus_vec)), dtype=complex)
+    for i in range(len(bus_vec)):
+        shunt = df_lines["Full_line_B"][i]/2*(1j)
+        
+        for k in range(len(bus_vec)):
+            
+            S_ik[i][k] = V_complex[i]*np.conjugate(-Ybus[i][k]*(V_complex[i]-V_complex[k]) + shunt*V_complex[i])#*S_base
+            
+    print("Updated line info:", '\n')
+    
+    d = {}
+    for i in range (len(bus_vec)):
+        from_line = df_lines["From_line"][i]
+        to_line = df_lines["To_line"][i]
 
-runtime = timeit.default_timer() - start_time
-print(f'Runtime: {runtime}')  
-"""
+        line = str(from_line) + " - " + str(to_line)
+        
+        d[line] = S_ik[from_line-1,to_line-1], np.real(S_ik[from_line-1,to_line-1]), np.imag(S_ik[from_line-1,to_line-1]), abs(np.real(S_ik[from_line-1,to_line-1]+S_ik[to_line-1,from_line-1])), abs(np.imag(S_ik[from_line-1,to_line-1]+S_ik[to_line-1,from_line-1])) 
+    print ("{:<7} {:<12} {:<12} {:<12} {:<12}".format('Line','Active Power Flow [MW] ', 'Reactive Power Flow [MVar] ', "Active Power Loss [MW] ", "Reactive Power Loss [MVar] "))    
+    for k, v in d.items():
+        apparent, active, reactive, ploss, qloss = v
+        print("{:<7} {:<23} {:<27} {:<23} {:<19}".format(k, round(active,4), 0, round(ploss,4), 0))
+    print('\n')
+    
+    
+    e = {}
+    for i in range (len(bus_vec)):
+        to_line = df_lines["From_line"][i]
+        from_line = df_lines["To_line"][i]
 
+        line = str(from_line) + " - " + str(to_line)
+        
+        e[line] = S_ik[from_line-1,to_line-1], np.real(S_ik[from_line-1,to_line-1]), np.imag(S_ik[from_line-1,to_line-1])#, np.real(S_ik[from_line-1,to_line-1]+S_ik[to_line-1,from_line-1]), np.imag(S_ik[from_line-1,to_line-1]+S_ik[to_line-1,from_line-1]) 
+    for k, v in e.items():
+        apparent, active, reactive = v
+        print("{:<7} {:<23} {:<27}".format(k, round(active,4), 0))#, round(ploss,4), round(qloss,4)))
+    print('\n')
+    
+    return 
