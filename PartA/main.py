@@ -10,7 +10,6 @@ import time
 
 convergence = 0.000000001
 Q_max = [0.5,5,-1.5,5,5]
-
 Q_max_trans = [0.5,5,-1.5,5,5, 5, 5]
 
 

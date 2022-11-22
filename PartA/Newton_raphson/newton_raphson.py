@@ -1,17 +1,21 @@
 import numpy as np
-
+#Importing files and network structure 
 from Newton_raphson.NR_functions import Ybus, read_buses, iterate_NR, printing_buses, printing_Y_bus, printing_lines, Q_violated, Q_max_violation, VD_vec_Qmax, updateVD_vec, updateVD, Q_calc_violated, PQ_to_PV
 from Newton_raphson.NR_network import Network
 
+#Reading the busdata CSV 
 bus_vec = read_buses('PartA/Busdata.csv')
-
+# Creating an instance of the bus network with imported data
 power_network = Network(bus_vec)
-
+#Creating the Ybus from the CSV with impedance data
 Ybus = Ybus('PartA/impedances.csv', len(bus_vec))
 
+#Setting convergence criterias
 convergence = 0.00001
+#Vector qith reactive power limits
 Q_max = [0.5,5,-1.5,5,5]
 
+# Main function for the Newton Raphson method 
 def NR(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method):
     V_init = power_network.get_V_calc()   #Appends 1 if nan. Otherwise given value 
     delta_init = power_network.get_delta_calc()  #Appends 0 if nan. Otherwise given value 
@@ -32,10 +36,12 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
     delta_vd = [1] * len(VD_vec) #Initial state of delta_vd. To avoid convergens in first iteration. 
     i= 0
     printing_Y_bus(Ybus)
+    #While loop that countinues as long as the convergence criteria is not reached
     while(abs(max(np.real(delta_vd))) > convergence):
         if (i==0):  #First iteration
             print("Iteration", i+1, ": \n")
             bus_type = power_network.get_bus_type_vec()
+            #Iteration with first initialization of variables and parameters
             delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_init, delta_init, Ybus, bus_num_init, P_init, Q_init, VD_vec, power_network, bus_type_init, Q_max, Q_limit, reactive_limits_method)
             i += 1
             
@@ -46,33 +52,32 @@ def NR(Ybus, power_network, convergence, Q_max, Q_limit, reactive_limits_method)
             printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
             i += 1
 
-    #Her testes Q_violation etter endt iterasjon. Da må ikke Q_violated være aktivert inne i while-loopen over. 
     if(reactive_limits_method== "after"):
+
         if (Q_violated(Q_max, Q_updated, bus_type)):
-                Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
-                power_network = PQ_to_PV(bus_type_init, bus_type, power_network, V_updated)
-                bus_type = power_network.get_bus_type_vec()
-                VD_vec, VD_jacobian = power_network.get_VD_jacobian()
-                PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
-                
-                
-                VD_vec_current = VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V)
-                
-                
-                V  = power_network.get_V_vec()
-                VD_vec_current = updateVD_vec(VD_vec_current, delta_vd, bus_type_init, bus_type, delta, V)
+            # If Q is violated Q_max_violation is called to do the type switching
+            Q_updated, power_network = Q_max_violation(Q_updated, Q_max, bus_num_init, V, power_network)
 
-
-                delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
-                Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
+            # Updating values for the different vectors. See function description for individual explanations of the functions
+            power_network = PQ_to_PV(bus_type_init, bus_type, power_network, V_updated)
+            bus_type = power_network.get_bus_type_vec()
+            VD_vec, VD_jacobian = power_network.get_VD_jacobian()
+            PQ_vec, PQ_jacobian = power_network.get_PQ_vec()
+            VD_vec_current = VD_vec_Qmax(VD_vec, VD_vec_current, bus_type, bus_type_init, V)            
+            V  = power_network.get_V_vec()
+            VD_vec_current = updateVD_vec(VD_vec_current, delta_vd, bus_type_init, bus_type, delta, V)
+            delta_updated, V_updated = updateVD(VD_vec_current,delta, V, bus_type_init, bus_type)
+            Q_calc = Q_calc_violated(bus_type_init,bus_type, Q_updated, Q_calc)
         delta_vd = [1] * len(VD_vec) 
         while(abs(max(np.real(delta_vd))) > convergence):
-                print("Iteration", i+1, ": \n")
-                delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit, reactive_limits_method)            
-                printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
-                i += 1
+            print("Iteration", i+1, ": \n")
+            delta_updated, V_updated, VD_vec_current, P_calc, Q_calc, P_updated, Q_updated, bus_type, power_network, VD_jacobian, PQ_jacobian, PQ_vec, bus_type, delta_vd, V  = iterate_NR(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_updated, delta_updated, Ybus, bus_num_init, P_calc, Q_calc, VD_vec_current,power_network, bus_type, Q_max, Q_limit, reactive_limits_method)            
+            printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type)
+            i += 1
 
     Power_network = PQ_to_PV(bus_type_init_clean, bus_type, power_network, V_updated) #Sets the transfrormed PV_bus back to a PV_bus.
+    
+    # Printing tables with resulting values for buses and lines
     printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_init_clean)
     printing_lines(bus_type_init_clean, "PartA/impedances.csv", V_updated, Ybus, delta_updated)
     return P_updated, Q_updated 

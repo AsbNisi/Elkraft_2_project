@@ -8,7 +8,7 @@ from pandas import *
 
 #Better output Y_bus
 def printing_Y_bus(Ybus):
-    df = DataFrame(Ybus)
+    df = DataFrame(Ybus) 
     df.index = np.arange(1, len(df)+1)
     df.columns = np.arange(1, len(df)+1)
     print('Ybus: \n', df, '\n')
@@ -39,7 +39,6 @@ def printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init,
 
 
 # Function to create the Y-bus matrix
-# shape needs to be specified per now. Fix this?
 def Ybus(file, shape):
     df_impedances = pd.read_csv(file, sep=";")
     Z_values = np.zeros((shape,shape), dtype=complex)
@@ -421,10 +420,7 @@ def printing_lines(bus_vec, file, V_updated, Ybus, delta_updated):
     
     return 
 
-
-
-
-#PQ_to_PV
+#function that type switches a bus from PQ_to_PV
 def PQ_to_PV(bus_type_init, bus_type, power_network, V_updated):
     Buses = power_network.buses
     for i in range (len(bus_type_init)):
