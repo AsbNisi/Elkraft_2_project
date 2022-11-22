@@ -5,9 +5,9 @@ from Newton_raphson.NR_network import Network
 from FDCLF.FDCLF_functions import Ybus_fdclf
 import pandas as pd
 import cmath
-bus_vec = read_buses('Busdata.csv')
+bus_vec = read_buses('PartA/Busdata.csv')
 power_network = Network(bus_vec)
-Ybus = Ybus('impedances.csv', 5)
+Ybus = Ybus('PartA/impedances.csv', 5)
 
 # Attaining the DCPF Ybus for a given power network
 def Ybus_DCPF(power_network):
@@ -43,7 +43,7 @@ def DCPF_calc(power_network):
     V_o = np.array([1 for _ in range(BusNum)])
     
     # Ybus for DCLF is used to find power flows as it only includes line susceptances
-    Ybus_DCLF = Ybus_dclf('impedances.csv', BusNum)
+    Ybus_DCLF = Ybus_dclf('PartA/impedances.csv', BusNum)
     P_injections = np.real(P_Calc(V_o, Ybus_DCLF, range(BusNum), delta_vec, P_o))
     
     bus_num_init = power_network.get_bus_num_vec()
@@ -53,7 +53,7 @@ def DCPF_calc(power_network):
     V_updated = [1 for _ in range(len(P_updated))]
     delta_updated = delta_vec
     printing_buses(V_updated, delta_updated, P_updated, Q_updated, bus_num_init, bus_type_init_clean)
-    printing_lines(bus_vec, "impedances.csv", V_updated, Ybus, delta_updated)
+    printing_lines(bus_vec, "PartA/impedances.csv", V_updated, Ybus, delta_updated)
     return P_injections, delta_vec
 
 
