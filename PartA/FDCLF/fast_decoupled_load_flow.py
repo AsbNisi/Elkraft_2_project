@@ -17,18 +17,18 @@ Q_max = [0.5, 5, 1.5,5,5]
 
 
 def FDCLF(Ybus, power_network, convergence, Q_max, method, Q_limit, reactive_limits_method):
-    V_vec_1, V_vec_2 = power_network.get_V_vec_FD()
-    Q_vec_FD = power_network.get_Q_vec_FD()
-    P_vec_FD = power_network.get_P_vec_FD()
-    bus_num_init = power_network.get_bus_num_vec()
-    num_buses = len(bus_num_init)
-    delta_vec_init = power_network.get_delta_vec_FD()
-    bus_type_vec = power_network.get_bus_type_vec()
-    bus_type_init_clean = power_network.get_bus_type_vec()
-    V = power_network.get_V_calc()
-    delta = power_network.get_delta_vec()
-    delta = np.zeros(len(bus_vec))
-    B_dash, B_double_dash = Ybus_fdclf(bus_type_vec, len(bus_vec), Ybus)
+    V_vec_1, V_vec_2 = power_network.get_V_vec_FD() #Returns V_vec_1 to calculate Q, and V_vec_2 to caluculate P. 
+    Q_vec_FD = power_network.get_Q_vec_FD() #Returns Q_vec without slack Q
+    P_vec_FD = power_network.get_P_vec_FD() #Returns P_vec without Slcak and PV P. 
+    bus_num_init = power_network.get_bus_num_vec()  #Returns bus number as a vector
+    num_buses = len(bus_num_init) #Calculates how many busses there are in the network. 
+    delta_vec_init = power_network.get_delta_vec_FD() #Returns delta_values. without slack
+    bus_type_vec = power_network.get_bus_type_vec() #Returns vector with bus type. O if slack, 1 if PV and 2 if PQ.
+    bus_type_init_clean = power_network.get_bus_type_vec() #Returns vector with bus type. O if slack, 1 if PV and 2 if PQ. No change
+    V = power_network.get_V_calc() #Returns V_values. If unknown, returns 1
+    delta = power_network.get_delta_vec() #Returns delta_values. If unknown, returns 0
+    delta = np.zeros(len(bus_vec)) #For Q_max after 
+    B_dash, B_double_dash = Ybus_fdclf(bus_type_vec, len(bus_vec), Ybus) #Returns the FDLF Y-matrixes
     printing_Y_bus(Ybus)
     printing_B_dash(B_dash) 
     printing_B_double_dash(B_double_dash)

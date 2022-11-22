@@ -108,7 +108,7 @@ def iterate_fdclf(num_buses, bus_num_init, V, V_vec_1, V_vec_2, delta, delta_vec
     
     
 
-
+#Checking violation
 def Q_violated(Q_max, Q_Calc, bustype):
     for x in range(len(Q_max)):
         if (abs(Q_Calc[x]) > abs(Q_max[x]) and bustype[x] == 1):
@@ -131,7 +131,7 @@ def printing_B_double_dash(B_double_dash):
     print('B double dash: \n', df, '\n')
     return 
 
-
+#Updates V_vecs
 def Update_V_vec(bus_type_vec, V_vec_1, V_vec_2, V):
     V_vec_1_updated = V_vec_1.copy()
     V_vec_2_updated = V_vec_2.copy()
@@ -148,7 +148,7 @@ def Update_V_vec(bus_type_vec, V_vec_1, V_vec_2, V):
             j += 1
     return V_vec_1_updated, V_vec_2_updated
 
-
+#Fixing Q_updated
 def Q_Updated_fixed(Q_updated, bus_type_vec, num_buses):
     i = 0
     for x in range(num_buses):
@@ -157,14 +157,14 @@ def Q_Updated_fixed(Q_updated, bus_type_vec, num_buses):
             i -= 1
     return Q_updated
 
-
+#Fixing P_updated
 def P_Updated_fixed(P_updated, bus_type_vec, num_buses):
     for x in range(num_buses):
         if (bus_type_vec[x] == 0):
             P_updated = np.delete(P_updated, x, 0)
     return P_updated
 
-
+#Fixing delta_vec
 def Delta_vec_fixed(delta_vec, bus_type_vec, delta_Delta):
     i=0
     if(len(delta_vec) > len(delta_Delta)):
@@ -173,14 +173,14 @@ def Delta_vec_fixed(delta_vec, bus_type_vec, delta_Delta):
                     delta_vec = np.delete(delta_vec, x-i, 0)
                     i += 1 
     return delta_vec
-
+#Restores delta_vec
 def Delta_vec_restored(delta_updated, bus_type_vec, num_buses):
     for x in range(num_buses):
         if (bus_type_vec[x] == 0):
             delta_updated.insert(x,0)
     return delta_updated
     
-
+#Fixing V_vec
 def V_vec_fixed(V, bus_type_vec, num_buses):
     V_limited = []
     for x in range(num_buses):
@@ -189,7 +189,7 @@ def V_vec_fixed(V, bus_type_vec, num_buses):
         else:
             continue 
     return V_limited 
-
+#Restores V_vec
 def V_vec_restored(V, bus_type_vec, num_buses, V_updated):
     i = 0
     for x in range(num_buses):

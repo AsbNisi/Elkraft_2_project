@@ -115,11 +115,6 @@ def iterate_dclf(VD_jacobian, PQ_jacobian, PQ_vec, num_buses, V, delta, V_vec, d
     
     #6 Updates values for V and delta
     VD_vec_current = updateVD_vec(VD_vec_current, delta_vd, bus_type_init, bus_type_init, delta, V)
-    
-    #print('VD_vec_current')
-    #print(VD_vec_current)
-    #VD_vec_current = insert_VD_vec(delta, delta_updated, V, V_updated, VD_vec_current)
-    #print(VD_vec_current)
 
     #7 Updates V_values and delta_values in separate vectores tougether with given values.  
     delta_updated, V_updated = updateVD(VD_vec_current,delta, V , bus_type_init, bus_type_init)
