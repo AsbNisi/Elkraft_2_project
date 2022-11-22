@@ -7,9 +7,12 @@ from Task4.Task4_FDCLF import FDCLF_trans
 import time
 
 
-
+# Setting convergence criteria
 convergence = 0.000000001
+
+#Vector with reactive power limits for the base case
 Q_max = [0.5,5,-1.5,5,5]
+#Vector with reactive power limits for the case with transformers
 Q_max_trans = [0.5,5,-1.5,5,5, 5, 5]
 
 
